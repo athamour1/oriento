@@ -1,0 +1,123 @@
+<template>
+  <q-page class="q-pa-lg max-w-md mx-auto">
+    <div class="row items-center q-mb-xl">
+      <q-btn flat round icon="arrow_back" color="grey-8" @click="$router.back()" class="q-mr-sm" />
+      <div class="text-h5 text-weight-bold tracking-tight">{{ $t('eventSettings') }}</div>
+    </div>
+
+    <q-card flat bordered class="q-pa-md shadow-2 q-mb-lg">
+      <q-form @submit="updateEvent" class="q-gutter-md">
+        <q-input v-model="form.name" :label="$t('eventName')" outlined :rules="[val => !!val || 'Required']" />
+        
+        <q-input v-model="form.description" :label="$t('eventDesc')" outlined type="textarea" autogrow />
+        
+        <q-toggle 
+          v-model="form.isActive" 
+          checked-icon="check" 
+          unchecked-icon="clear"
+          :label="$t('eventIsLive')" 
+          color="positive" 
+          size="lg" 
+          class="q-mt-lg" 
+        />
+        
+        <div class="row q-mt-xl">
+          <q-btn unelevated color="primary" :label="$t('saveChanges')" type="submit" class="full-width" size="lg" no-caps />
+        </div>
+      </q-form>
+    </q-card>
+
+    <q-card flat bordered class="q-pa-md q-mb-lg" style="border-color: var(--q-primary);">
+      <div class="row items-center q-mb-sm">
+        <q-icon name="share" color="primary" class="q-mr-sm" />
+        <div class="text-subtitle1 text-weight-bold text-primary">{{ $t('publicLeaderboard') }}</div>
+      </div>
+      <div class="text-body2 q-mb-md">{{ $t('shareLinkDesc') }}</div>
+      <div class="row items-center q-gutter-sm">
+        <q-input :value="publicUrl" outlined dense readonly class="col" />
+        <q-btn unelevated color="primary" icon="content_copy" :label="$t('copy')" @click="copyLink" no-caps />
+      </div>
+      <div v-if="copied" class="text-positive text-caption q-mt-sm">{{ $t('linkCopiedToClipboard') }}</div>
+    </q-card>
+
+    <q-card flat bordered class="q-pa-md border-red">
+      <div class="text-h6 text-negative text-weight-bold tracking-tight q-mb-sm">{{ $t('dangerZone') }}</div>
+      <div class="text-body2 q-mb-md">{{ $t('deleteDesc') }}</div>
+      <q-btn outline color="negative" icon="delete_forever" :label="$t('deleteHunt')" @click="confirmDelete" no-caps />
+    </q-card>
+  </q-page>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import { api } from 'boot/axios'
+import { useRoute, useRouter } from 'vue-router'
+import { useQuasar } from 'quasar'
+import { useI18n } from 'vue-i18n'
+
+const $q = useQuasar()
+const { t } = useI18n()
+const route = useRoute()
+const router = useRouter()
+const eventId = route.params.eventId
+
+const form = ref({ name: '', description: '', isActive: false })
+const copied = ref(false)
+const publicUrl = `${window.location.protocol}//${window.location.host}/#/leaderboard/${eventId}`
+
+const copyLink = () => {
+  navigator.clipboard.writeText(publicUrl)
+  copied.value = true
+  setTimeout(() => { copied.value = false }, 2500)
+}
+
+onMounted(async () => {
+  try {
+    const res = await api.get(`/admin/events/${eventId}`)
+    form.value = { 
+      name: res.data.name, 
+      description: res.data.description, 
+      isActive: res.data.isActive 
+    }
+  } catch (e) {
+    console.error(e)
+    $q.notify({ color: 'negative', message: 'Failed to load settings.' })
+  }
+})
+
+const updateEvent = async () => {
+  try {
+    await api.put(`/admin/events/${eventId}`, form.value)
+    $q.notify({ color: 'positive', icon: 'check_circle', message: 'Event Settings safely updated!' })
+  } catch (e) {
+    console.warn(e)
+    $q.notify({ color: 'negative', message: 'Failed to save settings.' })
+  }
+}
+
+const confirmDelete = () => {
+  $q.dialog({
+    title: t('confirmDeletion'),
+    message: t('confirmWipeEvent'),
+    color: 'negative',
+    cancel: true,
+    persistent: true
+  }).onOk(async () => {
+    try {
+      await api.delete(`/admin/events/${eventId}`)
+      $q.notify({ color: 'positive', message: t('eventWiped') })
+      router.push('/admin')
+      setTimeout(() => window.location.reload(), 500)
+    } catch(e) {
+      console.warn(e)
+      $q.notify({ color: 'negative', message: 'Failed to delete event.' })
+    }
+  })
+}
+</script>
+
+<style scoped>
+.tracking-tight { letter-spacing: -0.02em; }
+.max-w-md { max-width: 600px; }
+.border-red { border-color: rgba(193,0,21,0.2); }
+</style>

@@ -45,6 +45,7 @@ services:
       - "9200:9200"
 
     environment:
+      - VITE_API_URL=http://localhost:3000
       - CHOKIDAR_USEPOLLING=true # Ensures Vue/Vite hot-reloading reliably tracks file changes across the Docker volume boundary
     # Quasar runs its dev server natively
     command: sh -c "npm install && npx quasar dev -m pwa -H 0.0.0.0"

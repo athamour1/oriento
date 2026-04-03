@@ -1,7 +1,9 @@
 import { defineBoot } from '#q-app/wrappers'
 import axios from 'axios'
 
-const api = axios.create({ baseURL: 'http://localhost:3000' })
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
+const api = axios.create({ baseURL: API_BASE })
 
 // ── Request: attach token ─────────────────────────────────────────────────────
 api.interceptors.request.use((config) => {
@@ -42,7 +44,7 @@ api.interceptors.response.use(
       const oldToken = localStorage.getItem('token')
       try {
         const { data } = await axios.post(
-          'http://localhost:3000/auth/refresh',
+          `${API_BASE}/auth/refresh`,
           {},
           { headers: { Authorization: `Bearer ${oldToken}` } }
         )
@@ -75,7 +77,7 @@ const scheduleProactiveRefresh = () => {
     if (!token) return
     try {
       const { data } = await axios.post(
-        'http://localhost:3000/auth/refresh',
+        `${API_BASE}/auth/refresh`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       )

@@ -13,10 +13,7 @@ services:
       - postgres_data_prod:/var/lib/postgresql/data
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    # image: ghcr.io/your-github-username/orienteering-backend:latest
+    image: ghcr.io/athamour1/orientiring/backend:latest
     container_name: orienteering_backend_prod
     restart: always
     depends_on:
@@ -32,14 +29,13 @@ services:
       - DEFAULT_LANGUAGE=el
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    # image: ghcr.io/your-github-username/orienteering-frontend:latest
+    image: ghcr.io/athamour1/orientiring/frontend:latest
     container_name: orienteering_frontend_prod
     restart: always
     ports:
       - "80:80"
+    environment:
+      - VITE_API_URL=http://localhost:3000  # Change to your production backend URL
 
 volumes:
   postgres_data_prod:

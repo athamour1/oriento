@@ -2,22 +2,27 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Install dependencies
-COPY package*.json ./
+# Copy all source first (quasar prepare needs project context)
+COPY . .
+
+# Install dependencies (postinstall runs quasar prepare which needs the project files)
 RUN npm install
 
-# Copy application code and build Quasar SPA
-COPY . .
+# Build with a placeholder that gets replaced at runtime
+ENV VITE_API_URL=__RUNTIME_API_URL__
 RUN npx quasar build -m pwa
 
 # Production runtime stage using NGINX
 FROM nginx:alpine
 
-# The default quasar output folder is dist/spa
-COPY --from=builder /app/dist/spa /usr/share/nginx/html
+# Quasar PWA output folder
+COPY --from=builder /app/dist/pwa /usr/share/nginx/html
+
+# Entrypoint script for runtime env var injection
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
 # Expose the default NGINX port
 EXPOSE 80
 
-# Run nginx in foreground
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/docker-entrypoint.sh"]

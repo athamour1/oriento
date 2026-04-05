@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateEventDto } from './dto/create-event.dto';
+import { UpdateEventDto } from './dto/update-event.dto';
+import { UpdateLocationDto } from './dto/update-location.dto';
 
 @Injectable()
 export class EventsService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: any) {
+  create(data: CreateEventDto) {
     return this.prisma.event.create({ data });
   }
 
@@ -17,7 +20,7 @@ export class EventsService {
     return this.prisma.event.findUnique({ where: { id }, include: { checkpoints: true } });
   }
 
-  update(id: number, data: any) {
+  update(id: number, data: UpdateEventDto) {
     return this.prisma.event.update({ where: { id }, data });
   }
 
@@ -32,7 +35,8 @@ export class EventsService {
     });
   }
 
-  getLogs(eventId: number) {
+  getLogs(eventId: number, page = 1, limit = 50) {
+    const skip = (page - 1) * limit;
     return this.prisma.scan.findMany({
       where: { checkpoint: { eventId } },
       include: {
@@ -40,6 +44,8 @@ export class EventsService {
         checkpoint: { select: { id: true, name: true, pointValue: true } },
       },
       orderBy: { scannedAt: 'desc' },
+      skip,
+      take: limit,
     });
   }
 
@@ -58,6 +64,34 @@ export class EventsService {
     return this.prisma.teamLocation.findMany({
       where: { team: { eventId } },
       include: { team: { select: { id: true, username: true } } },
+    });
+  }
+
+  async getActiveEventForTeam(userId: number) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    let activeEvent: any = null;
+
+    if (user?.eventId) {
+      const event = await this.findOne(user.eventId);
+      if (event?.isActive) activeEvent = event;
+    }
+    if (!activeEvent) {
+      activeEvent = await this.findActiveEvent();
+    }
+    if (!activeEvent) return null;
+
+    const scans = await this.prisma.scan.findMany({
+      where: { teamId: userId, checkpoint: { eventId: activeEvent.id } },
+    });
+
+    return { ...activeEvent, scannedCheckpointIds: scans.map((s: any) => s.checkpointId) };
+  }
+
+  upsertTeamLocation(userId: number, dto: UpdateLocationDto) {
+    return this.prisma.teamLocation.upsert({
+      where: { teamId: userId },
+      create: { teamId: userId, latitude: dto.latitude, longitude: dto.longitude },
+      update: { latitude: dto.latitude, longitude: dto.longitude },
     });
   }
 }

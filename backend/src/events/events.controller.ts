@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Query } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '@prisma/client';
+import { CreateEventDto } from './dto/create-event.dto';
+import { UpdateEventDto } from './dto/update-event.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('admin/events')
@@ -12,7 +14,7 @@ export class EventsController {
 
   @Roles(Role.ADMIN)
   @Post()
-  create(@Body() createEventDto: any) {
+  create(@Body() createEventDto: CreateEventDto) {
     return this.eventsService.create(createEventDto);
   }
 
@@ -30,7 +32,7 @@ export class EventsController {
 
   @Roles(Role.ADMIN)
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateEventDto: any) {
+  update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
     return this.eventsService.update(+id, updateEventDto);
   }
 
@@ -48,8 +50,12 @@ export class EventsController {
 
   @Roles(Role.ADMIN)
   @Get(':id/logs')
-  getLogs(@Param('id') id: string) {
-    return this.eventsService.getLogs(+id);
+  getLogs(
+    @Param('id') id: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.eventsService.getLogs(+id, page ? +page : 1, limit ? +limit : 50);
   }
 
   @Roles(Role.ADMIN)

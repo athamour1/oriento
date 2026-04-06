@@ -122,5 +122,14 @@ export default {
   checkpointSuccessfullyValidated: 'Checkpoint successfully validated!',
   validationFailed: 'Validation failed',
   cameraAccessError: 'Camera access denied or error.',
-  installApp: 'Install App'
+  installApp: 'Install App',
+  failedToLoadEvents: 'Failed to load events.',
+  failedToCreateEvent: 'Failed to create event.',
+  failedToDeleteEvent: 'Failed to delete event.',
+  confirmWipeEventNamed: "Are you completely sure you want to permanently wipe the event '{name}'?",
+  eventNameRequired: 'Event Name is required',
+  failedToSync: 'Failed to synchronize with server.',
+  failedToLoadSettings: 'Failed to load settings.',
+  settingsSaved: 'Event settings saved successfully.',
+  failedToSaveSettings: 'Failed to save settings.'
 }

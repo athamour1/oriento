@@ -122,5 +122,14 @@ export default {
   checkpointSuccessfullyValidated: 'Το σημείο ελέγχου επικυρώθηκε επιτυχώς!',
   validationFailed: 'Η επικύρωση απέτυχε',
   cameraAccessError: 'Δεν επιτρέπεται η πρόσβαση στην κάμερα ή υπάρχει σφάλμα.',
-  installApp: 'Εγκατάσταση'
+  installApp: 'Εγκατάσταση',
+  failedToLoadEvents: 'Αποτυχία φόρτωσης παιχνιδιών.',
+  failedToCreateEvent: 'Αποτυχία δημιουργίας παιχνιδιού.',
+  failedToDeleteEvent: 'Αποτυχία διαγραφής παιχνιδιού.',
+  confirmWipeEventNamed: "Είστε απόλυτα σίγουροι ότι θέλετε να διαγράψετε οριστικά το παιχνίδι '{name}';",
+  eventNameRequired: 'Το όνομα παιχνιδιού είναι υποχρεωτικό',
+  failedToSync: 'Αποτυχία συγχρονισμού με τον διακομιστή.',
+  failedToLoadSettings: 'Αποτυχία φόρτωσης ρυθμίσεων.',
+  settingsSaved: 'Οι ρυθμίσεις αποθηκεύτηκαν επιτυχώς.',
+  failedToSaveSettings: 'Αποτυχία αποθήκευσης ρυθμίσεων.'
 }

@@ -16,9 +16,16 @@ export class ScansService {
       throw new BadRequestException('Invalid QR code');
     }
 
-    // 2. Check if the event is active
+    // 2. Check if the event is active and within its time window
     if (!checkpoint.event.isActive) {
       throw new BadRequestException('Event is not currently active');
+    }
+    const now = new Date();
+    if (checkpoint.event.startTime && now < checkpoint.event.startTime) {
+      throw new BadRequestException('Event has not started yet');
+    }
+    if (checkpoint.event.endTime && now > checkpoint.event.endTime) {
+      throw new BadRequestException('Event has already ended');
     }
 
     // 3. Check if team has already scanned it

@@ -136,6 +136,7 @@ export default {
   notScannedYet: 'Not scanned yet',
   eventTimer: 'Event Timer',
   eventTimerDesc: 'Scans will only be accepted within this time window. Leave blank for no restriction.',
+  checkpointMoved: 'Checkpoint position saved',
   firstFinishBonus: 'First to Finish Bonus',
   firstFinishBonusDesc: 'Extra points awarded to the first team that scans all checkpoints.',
   firstFinishBonusHint: 'Set to 0 to disable',

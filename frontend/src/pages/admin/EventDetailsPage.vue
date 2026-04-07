@@ -179,17 +179,44 @@ onMounted(async () => {
   fetchCheckpoints()
 })
 
+let cpMarkers = []
+
 const fetchCheckpoints = async () => {
   try {
     const res = await api.get(`/admin/events/${eventId}/checkpoints`)
     checkpoints.value = res.data
-    const markers = []
+
+    // Clear old markers
+    cpMarkers.forEach(m => map.removeLayer(m))
+    cpMarkers = []
+
     checkpoints.value.forEach(cp => {
-      const marker = L.marker([cp.latitude, cp.longitude]).bindPopup(`<b>${cp.name}</b>`).addTo(map)
-      markers.push(marker)
+      const marker = L.marker([cp.latitude, cp.longitude], { draggable: true })
+        .bindPopup(`<b>${cp.name}</b><br><span style="font-size:11px;color:#888;">Drag to reposition</span>`)
+        .addTo(map)
+
+      marker.on('dragend', async () => {
+        const { lat, lng } = marker.getLatLng()
+        const newLat = Number(lat.toFixed(6))
+        const newLng = Number(lng.toFixed(6))
+        try {
+          await api.put(`/admin/events/${eventId}/checkpoints/${cp.id}`, { latitude: newLat, longitude: newLng })
+          cp.latitude = newLat
+          cp.longitude = newLng
+          marker.bindPopup(`<b>${cp.name}</b><br><span style="font-size:11px;color:#888;">Drag to reposition</span>`)
+          $q.notify({ type: 'positive', message: t('checkpointMoved'), position: 'top-right', timeout: 1800 })
+        } catch (err) {
+          console.error(err)
+          marker.setLatLng([cp.latitude, cp.longitude])
+          $q.notify({ type: 'negative', message: t('failedToSaveSettings'), position: 'top-right', timeout: 2000 })
+        }
+      })
+
+      cpMarkers.push(marker)
     })
-    if (markers.length > 0) {
-      map.fitBounds(new L.featureGroup(markers).getBounds().pad(0.1))
+
+    if (cpMarkers.length > 0) {
+      map.fitBounds(new L.featureGroup(cpMarkers).getBounds().pad(0.1))
     }
   } catch (err) { console.error(err) }
 }

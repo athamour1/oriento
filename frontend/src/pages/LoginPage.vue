@@ -2,7 +2,10 @@
   <q-page class="flex flex-center">
     <div class="main-card q-pa-xl shadow-up-10 rounded-borders">
       <div class="text-center q-mb-lg">
-        <h3 class="text-h4 text-weight-bold tracking-tight branded-title q-my-none">🧭 Oriento</h3>
+        <div class="row items-center justify-center q-gutter-sm q-mb-xs">
+          <img src="/favicon.svg" alt="Oriento" style="width:40px;height:40px;" />
+          <h3 class="text-h4 text-weight-bold tracking-tight branded-title q-my-none">Oriento</h3>
+        </div>
         <p class="text-subtitle1 text-grey-8 opacity-80 current-status q-mt-sm">{{ $t('targetAndNavigate') }}</p>
       </div>
 
@@ -92,22 +95,17 @@ const onSubmit = async () => {
 }
 
 body.body--light .main-card {
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 body.body--dark .main-card {
-  background: #1e1e1e;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--q-dark);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-body.body--light .branded-title {
-  color: #1A1A2E; 
-}
-body.body--dark .branded-title {
-  color: #ffffff;
+.branded-title {
+  color: var(--q-primary);
 }
 
-.opacity-80 {
-  opacity: 0.8;
-}
+.opacity-80 { opacity: 0.8; }
 </style>

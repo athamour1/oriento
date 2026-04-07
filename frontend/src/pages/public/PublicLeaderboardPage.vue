@@ -80,7 +80,7 @@ const copyLink = () => {
 
 onMounted(async () => {
   await fetchLeaderboard()
-  const socket = useEventSocket(eventId)
+  const { socket } = useEventSocket(eventId)
   socket.on('scan:created', fetchLeaderboard)
 })
 </script>
@@ -90,9 +90,9 @@ onMounted(async () => {
 
 .public-lb-page {
   min-height: 100vh;
-  background: #ffffff;
+  background: #f5f3ff;
   font-family: 'Inter', 'Segoe UI', sans-serif;
-  color: #333;
+  color: var(--q-dark);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -129,7 +129,7 @@ onMounted(async () => {
 .dot {
   display: inline-block;
   width: 8px; height: 8px;
-  background: #4caf50;
+  background: var(--q-positive);
   border-radius: 50%;
   animation: pulse 1.4s infinite;
 }
@@ -163,7 +163,7 @@ onMounted(async () => {
 .rank { font-size: 1.5rem; min-width: 36px; text-align: center; }
 .rank-num { font-size: 1rem; font-weight: 700; color: rgba(0,0,0,0.55); }
 .team-name { flex: 1; font-size: 1.05rem; font-weight: 600; }
-.score { font-size: 1rem; font-weight: 700; color: #ffb300; display: flex; align-items: center; gap: 4px; }
+.score { font-size: 1rem; font-weight: 700; color: var(--q-warning); display: flex; align-items: center; gap: 4px; }
 .star { font-size: 0.85rem; }
 
 .empty-state {
@@ -183,14 +183,13 @@ onMounted(async () => {
   gap: 8px;
 }
 .copy-btn {
-  background: rgba(0,0,0,0.04);
-  border: 1px solid rgba(0,0,0,0.1);
-  color: #333;
+  background: var(--q-primary);
+  color: #fff;
   padding: 10px 24px;
   font-size: 0.9rem;
-  transition: background .2s;
+  transition: opacity .2s;
 }
-.copy-btn:hover { background: rgba(0,0,0,0.08); }
-.copied-note { color: #4caf50; font-size: 0.85rem; }
+.copy-btn:hover { opacity: 0.88; }
+.copied-note { color: var(--q-positive); font-size: 0.85rem; }
 .refresh-note { font-size: 0.75rem; color: rgba(0,0,0,0.35); }
 </style>

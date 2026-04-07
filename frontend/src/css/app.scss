@@ -1,5 +1,5 @@
 // app global css in SCSS form
-
+@import 'quasar.variables';
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 // ── Global typography ───────────────────────────────────────────────────────
@@ -9,46 +9,47 @@
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f3ff;   // very faint purple tint
-  color: #1a0d2e;
+  background-color: #f5f3ff;
+  color: darken($dark, 5%);
 }
 
 // ── Dark mode base ──────────────────────────────────────────────────────────
 body.body--dark {
-  background-color: #150b24;
-  color: #e8def8;
+  background-color: $dark-page;
+  color: lighten($accent, 20%);
 }
 
-// Cards — light tinted surface / dark deep purple surface
+// Cards
 .body--dark .q-card {
-  background-color: #261545 !important;
-  border-color: rgba(142, 90, 221, 0.18) !important;
+  background-color: lighten($dark, 5%) !important;
+  border-color: rgba($primary, 0.18) !important;
 }
 
-// Header / footer
+// Header / toolbar
 .body--dark .q-header,
 .body--dark .q-toolbar {
-  background-color: #1e1030 !important;
+  background-color: $dark !important;
 }
 
+// Footer
 .body--dark .q-footer {
-  background-color: #1e1030 !important;
-  border-top: 1px solid rgba(142, 90, 221, 0.2);
+  background-color: $dark !important;
+  border-top: 1px solid rgba($primary, 0.2);
 }
 
 // Drawer
 .body--dark .q-drawer {
-  background-color: #1e1030 !important;
+  background-color: $dark !important;
 }
 
-// Table rows
+// Table row hover
 .body--dark .q-table tbody tr:hover {
-  background: rgba(142, 90, 221, 0.08);
+  background: rgba($primary, 0.08);
 }
 
 // Input fields
 .body--dark .q-field__control {
-  background-color: #261545 !important;
+  background-color: lighten($dark, 5%) !important;
 }
 
 // ── Smooth transitions ───────────────────────────────────────────────────────
@@ -83,8 +84,8 @@ body, .q-card, .q-drawer, .q-header, .q-footer, .q-page,
 .layer-menu { border-radius: 14px !important; overflow: hidden; }
 .layer-item { border-radius: 8px; margin-bottom: 2px; transition: background 0.15s; }
 .layer-item--active {
-  background: rgba(142, 90, 221, 0.15);
-  color: #8e5add;
+  background: rgba($primary, 0.15);
+  color: $primary;
   font-weight: 700;
 }
 

@@ -1,5 +1,8 @@
 import { WebSocketGateway, WebSocketServer, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, MessageBody, ConnectedSocket } from '@nestjs/websockets';
+import { forwardRef, Inject } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { Server, Socket } from 'socket.io';
+import { EventsService } from './events.service';
 
 @WebSocketGateway({
   cors: { origin: process.env.CORS_ORIGIN?.split(',').map((o) => o.trim()) ?? '*', credentials: true },
@@ -9,8 +12,23 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
+  constructor(
+    private jwtService: JwtService,
+    @Inject(forwardRef(() => EventsService)) private eventsService: EventsService,
+  ) {}
+
+  private getUserId(client: Socket): number | null {
+    try {
+      const token = client.handshake.auth?.token as string;
+      if (!token) return null;
+      const payload = this.jwtService.verify(token) as { sub: number };
+      return payload.sub;
+    } catch {
+      return null;
+    }
+  }
+
   handleConnection(client: Socket) {
-    // Client joins a room for a specific event via 'join' message
     void client;
   }
 
@@ -26,6 +44,16 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('leave')
   handleLeave(@MessageBody() eventId: number, @ConnectedSocket() client: Socket) {
     client.leave(`event:${eventId}`);
+  }
+
+  @SubscribeMessage('location:update')
+  async handleLocationUpdate(
+    @MessageBody() data: { latitude: number; longitude: number },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const userId = this.getUserId(client);
+    if (!userId) return;
+    await this.eventsService.upsertTeamLocation(userId, data);
   }
 
   emitScanCreated(eventId: number, payload: {

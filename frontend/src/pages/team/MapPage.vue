@@ -26,6 +26,9 @@ import 'leaflet/dist/leaflet.css'
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
 import markerIcon from 'leaflet/dist/images/marker-icon.png'
 import markerShadow from 'leaflet/dist/images/marker-shadow.png'
+import { io } from 'socket.io-client'
+
+const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 const map = ref(null)
 const $q = useQuasar()
@@ -41,6 +44,7 @@ let initialMapFit = false
 let lastSentLat = null
 let lastSentLng = null
 let lastSentTime = 0
+let locationSocket = null
 
 function haversineMetres(lat1, lng1, lat2, lng2) {
   const R = 6371000
@@ -91,8 +95,14 @@ onMounted(async () => {
     shadowUrl: markerShadow,
   });
 
+  // Connect socket for sending location updates (no polling REST)
+  locationSocket = io(SOCKET_URL, {
+    transports: ['websocket'],
+    auth: { token: localStorage.getItem('token') },
+  })
+
   await fetchEvent()
-  eventInterval = setInterval(fetchEvent, 5000)
+  eventInterval = setInterval(fetchEvent, 30000)
 
   if (navigator.geolocation && activeEvent.value?.showTeamLocation !== false) {
     watchId = navigator.geolocation.watchPosition(onPosition, () => {}, { enableHighAccuracy: true })
@@ -118,12 +128,10 @@ async function onPosition(pos) {
     haversineMetres(lastSentLat, lastSentLng, latitude, longitude) > 10
   const enoughTime = now - lastSentTime > 4000
   if (movedEnough || enoughTime) {
-    try {
-      await api.put('/team/events/location', { latitude, longitude })
-      lastSentLat = latitude
-      lastSentLng = longitude
-      lastSentTime = now
-    } catch { /* silent — non-critical */ }
+    locationSocket?.emit('location:update', { latitude, longitude })
+    lastSentLat = latitude
+    lastSentLng = longitude
+    lastSentTime = now
   }
 }
 
@@ -132,6 +140,7 @@ onUnmounted(() => {
     navigator.geolocation.clearWatch(watchId)
   }
   if (eventInterval) clearInterval(eventInterval)
+  locationSocket?.disconnect()
 })
 
 const fetchEvent = async () => {

@@ -54,7 +54,15 @@ export class ScansService {
     const result = { ...scan, isFirst, bonusAwarded: isFirst ? checkpoint.bonusForFirst : 0 };
 
     // Emit real-time event to all clients watching this event
-    const team = await this.prisma.user.findUnique({ where: { id: teamId }, select: { username: true } });
+    const [team, updatedCheckpoints, teamCount] = await Promise.all([
+      this.prisma.user.findUnique({ where: { id: teamId }, select: { username: true } }),
+      this.prisma.checkpoint.findMany({
+        where: { eventId: checkpoint.eventId },
+        include: { _count: { select: { scans: true } } },
+      }),
+      this.prisma.user.count({ where: { eventId: checkpoint.eventId } }),
+    ]);
+
     this.gateway.emitScanCreated(checkpoint.eventId, {
       teamId,
       teamUsername: team?.username ?? String(teamId),
@@ -63,6 +71,11 @@ export class ScansService {
       points: checkpoint.pointValue + result.bonusAwarded,
       bonusAwarded: result.bonusAwarded,
       scannedAt: scan.scannedAt,
+    });
+
+    this.gateway.emitStatsUpdated(checkpoint.eventId, {
+      checkpoints: updatedCheckpoints,
+      teamCount,
     });
 
     return result;

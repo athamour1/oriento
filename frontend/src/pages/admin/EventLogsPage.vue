@@ -366,17 +366,17 @@ onMounted(async () => {
   // Live updates via WebSocket — no polling needed
   const socket = useEventSocket(eventId)
 
-  socket.on('scan:created', async (payload) => {
-    // Append new log entry
+  socket.on('scan:created', (payload) => {
     logs.value.unshift({
       id: Date.now(),
       team: { id: payload.teamId, username: payload.teamUsername },
       checkpoint: { id: payload.checkpointId, name: payload.checkpointName, pointValue: payload.points - payload.bonusAwarded },
       scannedAt: payload.scannedAt,
     })
-    // Refresh checkpoint scan counts on the map
-    const statsRes = await api.get(`/admin/events/${eventId}/stats`)
-    renderCheckpoints(statsRes.data)
+  })
+
+  socket.on('stats:updated', (payload) => {
+    renderCheckpoints({ checkpoints: payload.checkpoints, teamCount: payload.teamCount })
   })
 
   socket.on('location:updated', (payload) => {

@@ -57,9 +57,6 @@
           </div>
         </div>
 
-        <div class="row q-mt-md">
-          <q-btn unelevated color="primary" :label="$t('saveChanges')" type="submit" class="full-width" size="lg" no-caps />
-        </div>
       </q-form>
     </q-card>
 
@@ -89,11 +86,13 @@
       </div>
       <div class="text-body2 q-mb-md">{{ $t('shareLinkDesc') }}</div>
       <div class="row items-center q-gutter-sm">
-        <q-input :value="publicUrl" outlined dense readonly class="col" />
+        <q-input :model-value="publicUrl" outlined dense readonly class="col" />
         <q-btn unelevated color="primary" icon="content_copy" :label="$t('copy')" @click="copyLink" no-caps />
       </div>
       <div v-if="copied" class="text-positive text-caption q-mt-sm">{{ $t('linkCopiedToClipboard') }}</div>
     </q-card>
+
+    <q-btn unelevated color="primary" :label="$t('saveChanges')" @click="updateEvent" class="full-width q-mb-lg" size="lg" no-caps />
 
     <q-card flat bordered class="q-pa-md border-red">
       <div class="text-h6 text-negative text-weight-bold tracking-tight q-mb-sm">{{ $t('dangerZone') }}</div>
@@ -167,7 +166,11 @@ const updateEvent = async () => {
       startTime: form.value.startTime ? new Date(form.value.startTime).toISOString() : null,
       endTime: form.value.endTime ? new Date(form.value.endTime).toISOString() : null,
     })
-  } catch (err) { console.error(err) }
+    $q.notify({ type: 'positive', message: t('settingsSaved'), position: 'top-right', timeout: 2500 })
+  } catch (err) {
+    console.error(err)
+    $q.notify({ type: 'negative', message: t('failedToSaveSettings'), position: 'top-right', timeout: 2500 })
+  }
 }
 
 const confirmDelete = () => {

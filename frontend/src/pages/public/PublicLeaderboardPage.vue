@@ -46,16 +46,17 @@
         <span class="q-mr-sm">🔗</span> {{ $t('copyShareableLink') }}
       </q-btn>
       <div class="copied-note" v-if="copied">{{ $t('linkCopied') }}</div>
-      <div class="refresh-note">{{ $t('autoRefreshes') }}</div>
+      <div class="refresh-note">{{ $t('updatedRealtime') }}</div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { api } from 'boot/axios'
 import LanguageSwitcher from 'components/LanguageSwitcher.vue'
+import { useEventSocket } from 'src/composables/useEventSocket'
 
 const route = useRoute()
 const eventId = route.params.eventId
@@ -64,7 +65,6 @@ const leaderboard = ref([])
 const eventName = ref('')
 const eventDescription = ref('')
 const copied = ref(false)
-let poller = null
 
 const fetchLeaderboard = async () => {
   try {
@@ -73,7 +73,7 @@ const fetchLeaderboard = async () => {
     eventName.value = res.data.eventName
     eventDescription.value = res.data.eventDescription
   } catch {
-    // Non-critical polling failure — UI shows stale data
+    // Non-critical failure — UI shows stale data
   }
 }
 
@@ -83,12 +83,11 @@ const copyLink = () => {
   setTimeout(() => { copied.value = false }, 2500)
 }
 
-onMounted(() => {
-  fetchLeaderboard()
-  poller = setInterval(fetchLeaderboard, 5000)
+onMounted(async () => {
+  await fetchLeaderboard()
+  const socket = useEventSocket(eventId)
+  socket.on('scan:created', fetchLeaderboard)
 })
-
-onUnmounted(() => { if (poller) clearInterval(poller) })
 </script>
 
 <style scoped>

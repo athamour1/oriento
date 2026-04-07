@@ -107,6 +107,7 @@ import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { useEventSocket } from 'src/composables/useEventSocket'
 
 const route = useRoute()
 const $q = useQuasar()
@@ -115,7 +116,6 @@ const eventId = route.params.eventId
 const logs = ref([])
 const loading = ref(false)
 const selectedTeamId = ref(null)
-let intervalId = null
 let map = null
 let hasFit = false
 const checkpointLayer = L.layerGroup()
@@ -320,12 +320,36 @@ onMounted(async () => {
 
   setTimeout(() => map.invalidateSize(), 150)
 
+  // Initial load via REST
   await fetchAll()
-  intervalId = setInterval(fetchAll, 5000)
+
+  // Live updates via WebSocket — no polling needed
+  const socket = useEventSocket(eventId)
+
+  socket.on('scan:created', async (payload) => {
+    // Append new log entry
+    logs.value.unshift({
+      id: Date.now(),
+      team: { id: payload.teamId, username: payload.teamUsername },
+      checkpoint: { id: payload.checkpointId, name: payload.checkpointName, pointValue: payload.points - payload.bonusAwarded },
+      scannedAt: payload.scannedAt,
+    })
+    // Refresh checkpoint scan counts on the map
+    const statsRes = await api.get(`/admin/events/${eventId}/stats`)
+    renderCheckpoints(statsRes.data)
+  })
+
+  socket.on('location:updated', (payload) => {
+    // Patch the location in our cached list and re-render
+    const idx = lastLocations.findIndex(l => l.team.id === payload.teamId)
+    const entry = { latitude: payload.latitude, longitude: payload.longitude, updatedAt: new Date().toISOString(), team: { id: payload.teamId, username: payload.teamUsername } }
+    if (idx >= 0) lastLocations[idx] = entry
+    else lastLocations.push(entry)
+    renderTeams(lastLocations)
+  })
 })
 
 onUnmounted(() => {
-  if (intervalId) clearInterval(intervalId)
   if (map) { map.remove(); map = null }
 })
 </script>

@@ -30,13 +30,14 @@
 
     <!-- New Event Modal -->
     <q-dialog v-model="showNewEventDialog">
-      <q-card style="min-width: 380px" class="q-pa-sm">
+      <q-card style="min-width: 420px; width: 95vw; max-width: 560px;" class="q-pa-sm">
         <q-card-section>
           <div class="text-h6 text-weight-bold tracking-tight">{{ $t('createEventTitle') }}</div>
           <div class="text-caption text-grey-7">{{ $t('defineParameters') }}</div>
         </q-card-section>
         <q-card-section class="q-pt-none">
           <q-form @submit="createEvent" class="q-gutter-md">
+
             <q-input
               v-model="newEvent.name"
               :label="$t('eventName')"
@@ -49,12 +50,43 @@
               :label="$t('eventDesc')"
               type="textarea" outlined autogrow
             />
-            <q-toggle
-              v-model="newEvent.isActive"
-              :label="$t('activateImmediately')"
-              checked-icon="check" unchecked-icon="clear"
-              color="positive" size="lg"
+
+            <q-separator />
+
+            <q-toggle v-model="newEvent.isActive" :label="$t('activateImmediately')" checked-icon="check" unchecked-icon="clear" color="positive" size="lg" />
+            <q-toggle v-model="newEvent.showTeamLocation" :label="$t('showTeamLocation')" checked-icon="location_on" unchecked-icon="location_off" color="primary" size="lg" />
+
+            <q-separator />
+
+            <div class="text-subtitle2 text-weight-bold q-mb-xs">⏱ {{ $t('eventTimer') }}</div>
+            <div>
+              <div class="row q-col-gutter-md">
+                <div class="col-12 col-sm-6">
+                  <q-input v-model="newEvent.startTime" :label="$t('startTime')" outlined type="datetime-local" clearable />
+                </div>
+                <div class="col-12 col-sm-6">
+                  <q-input v-model="newEvent.endTime" :label="$t('endTime')" outlined type="datetime-local" clearable />
+                </div>
+              </div>
+            </div>
+
+            <q-separator />
+
+            <div class="text-subtitle2 text-weight-bold q-mb-xs">🏅 {{ $t('firstFinishBonus') }}</div>
+            <q-input v-model.number="newEvent.firstFinishBonus" :label="$t('bonusPoints')" outlined type="number" min="0" :hint="$t('firstFinishBonusHint')" />
+
+            <q-separator />
+
+            <div class="text-subtitle2 text-weight-bold q-mb-xs">{{ $t('language') }}</div>
+            <q-btn-toggle
+              v-model="newEvent.language"
+              unelevated rounded toggle-color="primary"
+              :options="[
+                { label: $t('english'), value: 'en-US' },
+                { label: $t('greek'),   value: 'el' },
+              ]"
             />
+
             <div class="row justify-end q-mt-lg q-gutter-sm">
               <q-btn flat :label="$t('cancel')" color="grey-7" v-close-popup no-caps />
               <q-btn unelevated :label="$t('deployEvent')" color="primary" type="submit" no-caps />
@@ -78,7 +110,8 @@ const { t } = useI18n()
 const store = useEventsStore()
 const events = computed(() => store.events)
 const showNewEventDialog = ref(false)
-const newEvent = ref({ name: '', description: '', isActive: false })
+const defaultEvent = () => ({ name: '', description: '', isActive: false, showTeamLocation: true, startTime: null, endTime: null, firstFinishBonus: 0, language: 'en-US' })
+const newEvent = ref(defaultEvent())
 
 onMounted(() => { if (!store.loaded) store.fetchEvents() })
 
@@ -96,10 +129,14 @@ const columns = computed(() => [
 
 const createEvent = async () => {
   try {
-    const res = await api.post('/admin/events', newEvent.value)
+    const res = await api.post('/admin/events', {
+      ...newEvent.value,
+      startTime: newEvent.value.startTime ? new Date(newEvent.value.startTime).toISOString() : null,
+      endTime: newEvent.value.endTime ? new Date(newEvent.value.endTime).toISOString() : null,
+    })
     store.addEvent(res.data)
     showNewEventDialog.value = false
-    newEvent.value = { name: '', description: '', isActive: false }
+    newEvent.value = defaultEvent()
     $q.notify({ type: 'positive', message: t('eventOrchestrated'), position: 'top-right', timeout: 2500 })
   } catch (err) { console.error(err) }
 }

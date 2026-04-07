@@ -62,7 +62,7 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+      <router-view :key="$route.params.eventId ?? $route.path" />
     </q-page-container>
   </q-layout>
 </template>

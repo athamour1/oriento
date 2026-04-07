@@ -108,9 +108,9 @@ onMounted(async () => {
 
 .public-lb-page {
   min-height: 100vh;
-  background: linear-gradient(160deg, #150b24 0%, #2a1060 45%, #8e5add 100%);
+  background: linear-gradient(160deg, #f0ebff 0%, #d8c8ff 50%, #c4a0f5 100%);
   font-family: 'Inter', 'Segoe UI', sans-serif;
-  color: #fff;
+  color: #1a0d2e;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -131,19 +131,33 @@ onMounted(async () => {
 }
 .lb-subtitle {
   font-size: 0.92rem;
-  color: rgba(255,255,255,0.7);
+  color: rgba(0,0,0,0.6);
   margin-bottom: 4px;
 }
 .live-dot {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.07);
   border-radius: 20px;
   padding: 4px 12px;
   font-size: 0.82rem;
   margin-top: 10px;
 }
+/* Dark mode overrides */
+body.body--dark .public-lb-page {
+  background: linear-gradient(160deg, #150b24 0%, #2a1060 45%, #8e5add 100%);
+  color: #fff;
+}
+body.body--dark .lb-subtitle { color: rgba(255,255,255,0.7); }
+body.body--dark .live-dot { background: rgba(255,255,255,0.1); }
+body.body--dark .lb-row {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.14);
+}
+body.body--dark .rank-num { color: rgba(255,255,255,0.55); }
+body.body--dark .empty-state { color: rgba(255,255,255,0.5); }
+body.body--dark .refresh-note { color: rgba(255,255,255,0.4); }
 .dot {
   display: inline-block;
   width: 8px; height: 8px;
@@ -166,8 +180,8 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(142,90,221,0.2);
   border-radius: 14px;
   padding: 14px 18px;
   margin-bottom: 10px;
@@ -179,7 +193,7 @@ onMounted(async () => {
 .lb-row.bronze { background: rgba(205,127,50,0.12); border-color: rgba(205,127,50,0.4); }
 
 .rank { font-size: 1.5rem; min-width: 36px; text-align: center; }
-.rank-num { font-size: 1rem; font-weight: 700; color: rgba(255,255,255,0.55); }
+.rank-num { font-size: 1rem; font-weight: 700; color: rgba(0,0,0,0.45); }
 .team-name { flex: 1; font-size: 1.05rem; font-weight: 600; }
 .score { font-size: 1rem; font-weight: 700; color: var(--q-warning); display: flex; align-items: center; gap: 4px; }
 .star { font-size: 0.85rem; }
@@ -187,7 +201,7 @@ onMounted(async () => {
 .empty-state {
   text-align: center;
   padding: 60px 20px;
-  color: rgba(255,255,255,0.5);
+  color: rgba(0,0,0,0.45);
 }
 .empty-icon { font-size: 3rem; margin-bottom: 12px; }
 
@@ -209,5 +223,5 @@ onMounted(async () => {
 }
 .copy-btn:hover { opacity: 0.88; }
 .copied-note { color: var(--q-positive); font-size: 0.85rem; }
-.refresh-note { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
+.refresh-note { font-size: 0.75rem; color: rgba(0,0,0,0.35); }
 </style>

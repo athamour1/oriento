@@ -22,7 +22,7 @@ export class LeaderboardService {
       }),
       this.prisma.event.findUnique({
         where: { id: eventId },
-        select: { name: true, description: true },
+        select: { name: true, description: true, firstFinishBonus: true, firstFinishBonusAwardedToId: true },
       }),
     ]);
 
@@ -32,6 +32,11 @@ export class LeaderboardService {
         scoresMap.set(scan.teamId, { teamName: scan.team.username, score: 0 });
       }
       scoresMap.get(scan.teamId)!.score += scan.checkpoint.pointValue;
+    }
+
+    if (event?.firstFinishBonus && event.firstFinishBonusAwardedToId) {
+      const winner = scoresMap.get(event.firstFinishBonusAwardedToId);
+      if (winner) winner.score += event.firstFinishBonus;
     }
 
     const leaderboard = Array.from(scoresMap.values()).sort((a, b) => b.score - a.score);

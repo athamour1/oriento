@@ -1,4 +1,4 @@
-import { IsString, IsBoolean, IsOptional, MaxLength, IsDateString, IsIn } from 'class-validator';
+import { IsString, IsBoolean, IsOptional, MaxLength, IsDateString, IsIn, IsInt, Min } from 'class-validator';
 
 export class UpdateEventDto {
   @IsOptional()
@@ -31,4 +31,9 @@ export class UpdateEventDto {
   @IsString()
   @IsIn(['en-US', 'el'])
   language?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  firstFinishBonus?: number;
 }

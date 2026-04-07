@@ -31,6 +31,20 @@
 
         <q-separator class="q-my-sm" />
 
+        <!-- First finisher bonus -->
+        <div class="text-subtitle2 text-weight-bold q-mb-xs">🏅 {{ $t('firstFinishBonus') }}</div>
+        <div class="text-caption text-grey-7 q-mb-sm">{{ $t('firstFinishBonusDesc') }}</div>
+        <q-input
+          v-model.number="form.firstFinishBonus"
+          :label="$t('bonusPoints')"
+          outlined
+          type="number"
+          min="0"
+          :hint="$t('firstFinishBonusHint')"
+        />
+
+        <q-separator class="q-my-sm" />
+
         <!-- Timer section -->
         <div class="text-subtitle2 text-weight-bold q-mb-xs">⏱ {{ $t('eventTimer') }}</div>
         <div class="text-caption text-grey-7 q-mb-sm">{{ $t('eventTimerDesc') }}</div>
@@ -123,7 +137,7 @@ const route = useRoute()
 const router = useRouter()
 const eventId = route.params.eventId
 
-const form = ref({ name: '', description: '', isActive: false, showTeamLocation: true, startTime: null, endTime: null, language: 'en-US' })
+const form = ref({ name: '', description: '', isActive: false, showTeamLocation: true, startTime: null, endTime: null, language: 'en-US', firstFinishBonus: 0 })
 const copied = ref(false)
 const publicUrl = `${window.location.protocol}//${window.location.host}/#/leaderboard/${eventId}`
 
@@ -153,6 +167,7 @@ onMounted(async () => {
       startTime: toLocalInput(res.data.startTime),
       endTime: toLocalInput(res.data.endTime),
       language: lang,
+      firstFinishBonus: res.data.firstFinishBonus ?? 0,
     }
     // Sync the local toggle and apply locale immediately
     appLang.value = lang

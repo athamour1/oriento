@@ -3,61 +3,97 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 // ── Global typography ───────────────────────────────────────────────────────
-* {
-  font-family: 'Inter', 'Roboto', sans-serif;
-}
+* { font-family: 'Inter', 'Roboto', sans-serif; }
 
+// ── Light mode base ─────────────────────────────────────────────────────────
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #ffffff;
-  color: #333333;
+  background-color: #f5f3ff;   // very faint purple tint
+  color: #1a0d2e;
 }
 
-// Ensure all inputs are pill shaped
+// ── Dark mode base ──────────────────────────────────────────────────────────
+body.body--dark {
+  background-color: #150b24;
+  color: #e8def8;
+}
+
+// Cards — light tinted surface / dark deep purple surface
+.body--dark .q-card {
+  background-color: #261545 !important;
+  border-color: rgba(142, 90, 221, 0.18) !important;
+}
+
+// Header / footer
+.body--dark .q-header,
+.body--dark .q-toolbar {
+  background-color: #1e1030 !important;
+}
+
+.body--dark .q-footer {
+  background-color: #1e1030 !important;
+  border-top: 1px solid rgba(142, 90, 221, 0.2);
+}
+
+// Drawer
+.body--dark .q-drawer {
+  background-color: #1e1030 !important;
+}
+
+// Table rows
+.body--dark .q-table tbody tr:hover {
+  background: rgba(142, 90, 221, 0.08);
+}
+
+// Input fields
+.body--dark .q-field__control {
+  background-color: #261545 !important;
+}
+
+// ── Smooth transitions ───────────────────────────────────────────────────────
+body, .q-card, .q-drawer, .q-header, .q-footer, .q-page,
+.q-table, .q-item, .q-toolbar, .q-field__inner {
+  transition: background-color 0.25s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+// ── Inputs: pill shaped ──────────────────────────────────────────────────────
 .q-field__control {
   border-radius: 9999px !important;
 }
 
-// ── Smooth dark-mode transitions ────────────────────────────────────────────
-body,
-.q-card,
-.q-drawer,
-.q-header,
-.q-footer,
-.q-page,
-.q-table,
-.q-item,
-.q-toolbar,
-.q-field__inner {
-  transition: background-color 0.25s ease, color 0.2s ease, border-color 0.2s ease;
-}
-
-// ── Buttons: pill-shaped + no-caps ──────────────────────────────────────────
-// Quasar puts the label text in `.q-btn .block` — override there
+// ── Buttons: pill-shaped ─────────────────────────────────────────────────────
 .q-btn .block,
 .q-btn__content {
   text-transform: none !important;
   letter-spacing: normal !important;
 }
 
-// Make all non-icon (text/action) buttons pill-shaped
 .q-btn:not(.q-btn--round) {
   border-radius: 999px !important;
   font-weight: 600;
 }
 
-// ── Consistent card border radius ───────────────────────────────────────────
+// ── Cards ────────────────────────────────────────────────────────────────────
 .q-card {
   border-radius: 14px !important;
 }
 
-// ── Dark map tile — boost brightness & contrast so labels are readable ───────
-.dark-tiles {
-  filter: brightness(2.5) contrast(1.15) saturate(1.2);
+// ── Layer picker (map) ───────────────────────────────────────────────────────
+.layer-menu { border-radius: 14px !important; overflow: hidden; }
+.layer-item { border-radius: 8px; margin-bottom: 2px; transition: background 0.15s; }
+.layer-item--active {
+  background: rgba(142, 90, 221, 0.15);
+  color: #8e5add;
+  font-weight: 700;
 }
 
-// ── Consistent table header style ───────────────────────────────────────────
+// ── Dark map tile ────────────────────────────────────────────────────────────
+.dark-tiles {
+  filter: brightness(1.5) contrast(1.15) saturate(1.2);
+}
+
+// ── Table header ─────────────────────────────────────────────────────────────
 .q-table thead tr th {
   font-weight: 700;
   font-size: 0.78rem;

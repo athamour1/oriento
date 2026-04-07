@@ -229,7 +229,7 @@ async function onPosition(pos) {
   if (activeEvent.value?.showTeamLocation !== false) {
     if (!userMarker.value) {
       userMarker.value = L.circleMarker([latitude, longitude], {
-        color: '#1565c0', fillColor: '#1e88e5', fillOpacity: 0.9, radius: 10, weight: 3
+        color: '#6c3fc4', fillColor: '#8e5add', fillOpacity: 0.9, radius: 10, weight: 3
       }).bindPopup('<b>📍 ' + t('yourTeam') + '</b>').addTo(map.value)
       if (markers.value.length === 0) {
         map.value.setView([latitude, longitude], 16)
@@ -328,7 +328,7 @@ const fetchEvent = async () => {
         if (nowDone) {
           userMarker.value.setStyle({ color: '#f9a825', fillColor: '#fdd835', fillOpacity: 1 })
         } else {
-          userMarker.value.setStyle({ color: '#1565c0', fillColor: '#1e88e5', fillOpacity: 0.9 })
+          userMarker.value.setStyle({ color: '#6c3fc4', fillColor: '#8e5add', fillOpacity: 0.9 })
         }
       }
 
@@ -425,8 +425,3 @@ const fetchEvent = async () => {
 .slide-up-leave-to    { transform: translateY(40px); opacity: 0; }
 </style>
 
-<style>
-.layer-menu { border-radius: 14px !important; overflow: hidden; }
-.layer-item { border-radius: 8px; margin-bottom: 2px; transition: background 0.15s; }
-.layer-item--active { background: rgba(25, 118, 210, 0.12); color: #1976d2; font-weight: 700; }
-</style>

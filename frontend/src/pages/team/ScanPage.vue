@@ -1,26 +1,23 @@
 <template>
   <q-page class="scan-page">
     <!-- Full-screen camera -->
-    <div class="camera-area">
-      <qrcode-stream v-if="scanning" @detect="onDetect" @error="onError" class="camera-stream" />
-      <div v-else class="camera-error flex flex-center column text-white">
-        <q-icon name="videocam_off" size="4rem" class="q-mb-md" />
-        <div class="text-h6">{{ $t('cameraAccessError') }}</div>
-      </div>
-
+    <qrcode-stream v-if="scanning" @detect="onDetect" @error="onError" class="camera-stream" />
+    <div v-else class="camera-error flex flex-center column text-white">
+      <q-icon name="videocam_off" size="4rem" class="q-mb-md" />
+      <div class="text-h6">{{ $t('cameraAccessError') }}</div>
     </div>
 
-    <!-- Bottom status bar -->
-    <div class="status-bar q-px-lg q-py-md">
+    <!-- Status bar pinned to bottom -->
+    <div class="status-bar">
       <transition name="fade" mode="out-in">
         <div v-if="resultMessage" :key="resultMessage"
-          class="result-pill row items-center q-gutter-sm"
+          class="result-pill row items-center q-gutter-xs"
           :class="isSuccess ? 'result-success' : 'result-error'"
         >
-          <q-icon :name="isSuccess ? 'check_circle' : 'warning'" size="sm" />
+          <q-icon :name="isSuccess ? 'check_circle' : 'warning'" size="xs" />
           <span>{{ resultMessage }}</span>
         </div>
-        <div v-else class="hint-text text-center text-grey-5">
+        <div v-else class="hint-text text-center text-grey-4">
           {{ $t('cameraAlwaysOnMessage') }}
         </div>
       </transition>
@@ -97,31 +94,20 @@ const onError = () => {
 
 <style scoped>
 .scan-page {
-  display: flex;
-  flex-direction: column;
+  position: absolute;
+  inset: 0;
   background: #000;
   overflow: hidden;
-  /* Fill the q-page area (excludes header + tab bar) */
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
 }
 
-.camera-area {
-  position: relative;
-  flex: 1 1 0;
-  min-height: 0;
-  overflow: hidden;
-}
-
+/* Camera fills the whole page */
 .camera-stream {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
 }
 
-/* Pierce into QrcodeStream's internal elements */
 .camera-stream :deep(video),
 .camera-stream :deep(canvas) {
   width: 100% !important;
@@ -130,40 +116,50 @@ const onError = () => {
   display: block;
 }
 
-/* The wrapper div QrcodeStream renders */
 .camera-stream :deep(> div) {
   width: 100%;
   height: 100%;
 }
 
 .camera-error {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
   background: #111;
-}
-
-
-/* Bottom status area */
-.status-bar {
-  background: rgba(0, 0, 0, 0.82);
-  min-height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+  color: #fff;
+}
+
+/* Status bar floats above the tab bar */
+.status-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
 }
 
 .result-pill {
-  border-radius: 12px;
-  padding: 10px 16px;
+  border-radius: 20px;
+  padding: 5px 14px;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
 }
-.result-success { background: rgba(67,160,71,0.25); color: #a5d6a7; }
-.result-error   { background: rgba(229,57,53,0.25);  color: #ef9a9a; }
+.result-success { background: rgba(67,160,71,0.3); color: #a5d6a7; }
+.result-error   { background: rgba(229,57,53,0.3);  color: #ef9a9a; }
 
 .hint-text {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   line-height: 1.4;
+  color: rgba(255,255,255,0.6);
 }
 
 .fade-enter-active, .fade-leave-active { transition: opacity 0.25s; }

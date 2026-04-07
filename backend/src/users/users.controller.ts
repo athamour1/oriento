@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, UseGuards, ConflictException, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Post, Get, Put, Body, UseGuards, ConflictException, Param, Delete, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -37,6 +37,15 @@ export class UsersController {
     }
     const user = await this.usersService.createTeam(body.username, body.password, +eventId);
     return { id: user.id, username: user.username };
+  }
+
+  @Put(':id')
+  async updateTeam(@Param('id') id: string, @Body() body: { username?: string; password?: string }) {
+    if (body.username) {
+      const existing = await this.usersService.findByUsername(body.username);
+      if (existing && existing.id !== +id) throw new ConflictException('Username already taken');
+    }
+    return this.usersService.updateTeam(+id, body.username, body.password);
   }
 
   @Delete(':id')

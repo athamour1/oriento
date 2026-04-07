@@ -142,5 +142,8 @@ export default {
   showAllTeams: 'Show all teams',
   bonusForFirst: 'First-scan bonus points',
   bonusForFirstHint: 'Extra points awarded to the first team to scan this checkpoint (0 = disabled)',
-  firstScanBonus: '🥇 FIRST! Bonus +{bonus} pts awarded!'
+  firstScanBonus: '🥇 FIRST! Bonus +{bonus} pts awarded!',
+  showRouteTooltip: 'Click to filter & show this team\'s GPS route on the map',
+  routeHint: 'Click a team button to filter the feed and show their GPS route history on the map',
+  viewingRouteFor: 'Showing GPS route for: {team}'
 }

@@ -82,7 +82,7 @@ let locationSocket = null
 
 function locateMe() {
   if (lastSentLat !== null && map.value) {
-    map.value.setView([lastSentLat, lastSentLng], 17, { animate: true })
+    map.value.setView([lastSentLat, lastSentLng], 19, { animate: true })
   }
 }
 

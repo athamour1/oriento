@@ -139,11 +139,7 @@ function teamHex(id) {
 }
 
 // Unique teams extracted from logs
-const allTeams = computed(() => {
-  const seen = new Map()
-  logs.value.forEach(l => { if (!seen.has(l.team.id)) seen.set(l.team.id, l.team) })
-  return Array.from(seen.values())
-})
+const allTeams = ref([])
 
 const filteredLogs = computed(() =>
   selectedTeamId.value === null
@@ -261,13 +257,15 @@ let lastLocations = []
 const fetchAll = async () => {
   loading.value = true
   try {
-    const [logsRes, statsRes, locRes] = await Promise.all([
+    const [logsRes, statsRes, locRes, teamsRes] = await Promise.all([
       api.get(`/admin/events/${eventId}/logs`),
       api.get(`/admin/events/${eventId}/stats`),
       api.get(`/admin/events/${eventId}/team-locations`),
+      api.get(`/admin/events/${eventId}/teams`),
     ])
     logs.value = logsRes.data
     lastLocations = locRes.data
+    allTeams.value = teamsRes.data.map(t => ({ id: t.id, username: t.username }))
     renderCheckpoints(statsRes.data)
     renderTeams(locRes.data)
   } catch {
@@ -374,6 +372,10 @@ onMounted(async () => {
       checkpoint: { id: payload.checkpointId, name: payload.checkpointName, pointValue: payload.points - payload.bonusAwarded },
       scannedAt: payload.scannedAt,
     })
+    // Ensure the team is in the filter list even if they weren't registered at load time
+    if (!allTeams.value.find(t => t.id === payload.teamId)) {
+      allTeams.value.push({ id: payload.teamId, username: payload.teamUsername })
+    }
   })
 
   socket.on('stats:updated', (payload) => {

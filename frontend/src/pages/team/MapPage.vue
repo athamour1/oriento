@@ -14,6 +14,18 @@
       </div>
     </transition>
 
+    <!-- Locate me button -->
+    <q-btn
+      round unelevated
+      icon="my_location"
+      color="white"
+      text-color="primary"
+      size="md"
+      class="locate-btn shadow-4"
+      :disable="!lastSentLat"
+      @click="locateMe"
+    />
+
     <!-- GPS blocked overlay -->
     <transition name="fade">
       <div v-if="gpsBlocked" class="gps-overlay">
@@ -67,6 +79,12 @@ let lastSentLat = null
 let lastSentLng = null
 let lastSentTime = 0
 let locationSocket = null
+
+function locateMe() {
+  if (lastSentLat !== null && map.value) {
+    map.value.setView([lastSentLat, lastSentLng], 17, { animate: true })
+  }
+}
 
 function onGpsError(err) {
   console.error(err)
@@ -288,6 +306,14 @@ const fetchEvent = async () => {
 </script>
 
 <style scoped>
+/* Locate me button */
+.locate-btn {
+  position: absolute;
+  bottom: 24px;
+  right: 16px;
+  z-index: 1000;
+}
+
 /* GPS blocked overlay */
 .gps-overlay {
   position: absolute;

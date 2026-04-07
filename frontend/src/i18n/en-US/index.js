@@ -149,6 +149,8 @@ export default {
   gpsUnavailable: 'GPS is currently unavailable. Make sure location services are enabled on your device.',
   gpsEnableHint: 'Tap the lock icon in your browser\'s address bar and allow Location access, then retry.',
   retryGps: 'Retry Location Access',
+  mapLayer: 'Map Style',
+  overlays: 'Overlays',
   showRouteTooltip: 'Click to filter & show this team\'s GPS route on the map',
   routeHint: 'Click a team button to filter the feed and show their GPS route history on the map',
   viewingRouteFor: 'Showing GPS route for: {team}'

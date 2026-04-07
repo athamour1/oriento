@@ -15,7 +15,28 @@
         <q-space />
         <q-badge color="green" label="Live" class="q-pa-xs" />
       </q-card-section>
-      <div id="admin-live-map" style="height: 380px; width: 100%;"></div>
+      <div id="admin-live-map" style="height: 380px; width: 100%; position: relative;">
+        <!-- Custom layer picker -->
+        <div class="admin-layer-btn">
+          <q-btn round unelevated icon="layers" color="white" text-color="grey-8" size="sm" class="shadow-3">
+            <q-menu anchor="top right" self="bottom right" :offset="[0, 8]">
+              <q-list dense style="min-width:170px">
+                <q-item-label header class="text-caption text-weight-bold">{{ $t('mapLayer') }}</q-item-label>
+                <q-item v-for="layer in adminBaseLayers" :key="layer.name" clickable @click="switchAdminBase(layer)" v-close-popup>
+                  <q-item-section avatar><q-radio :model-value="adminBaseName" :val="layer.name" color="primary" /></q-item-section>
+                  <q-item-section>{{ layer.label }}</q-item-section>
+                </q-item>
+                <q-separator />
+                <q-item-label header class="text-caption text-weight-bold">{{ $t('overlays') }}</q-item-label>
+                <q-item v-for="ov in adminOverlays" :key="ov.name" clickable @click="toggleOverlay(ov)">
+                  <q-item-section avatar><q-checkbox :model-value="ov.visible" color="primary" @update:model-value="toggleOverlay(ov)" /></q-item-section>
+                  <q-item-section>{{ ov.label }}</q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
+          </q-btn>
+        </div>
+      </div>
     </q-card>
 
     <!-- Map Legend -->
@@ -118,6 +139,26 @@ const logs = ref([])
 const loading = ref(false)
 const selectedTeamId = ref(null)
 let map = null
+
+// Layer picker state
+const adminBaseName = ref('street')
+const adminBaseLayers = ref([])
+const adminOverlays = ref([])
+let adminCurrentBase = null
+
+function switchAdminBase(layer) {
+  if (!map || !layer) return
+  if (adminCurrentBase) map.removeLayer(adminCurrentBase)
+  layer.tile.addTo(map)
+  adminCurrentBase = layer.tile
+  adminBaseName.value = layer.name
+}
+
+function toggleOverlay(ov) {
+  ov.visible = !ov.visible
+  if (ov.visible) ov.layer.addTo(map)
+  else map.removeLayer(ov.layer)
+}
 let hasFit = false
 const checkpointLayer = L.layerGroup()
 const teamLayer = L.layerGroup()
@@ -346,19 +387,25 @@ onMounted(async () => {
   const satelliteTile = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '© Esri' })
   const darkTile = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19, attribution: '© CartoDB' })
 
-  let activeBase = $q.dark.isActive ? darkTile : streetTile
-  activeBase.addTo(map)
+  adminBaseLayers.value = [
+    { name: 'street',    label: '🗺️ Street',      tile: streetTile },
+    { name: 'topo',      label: '⛰️ Topographic', tile: topoTile },
+    { name: 'satellite', label: '🛰️ Satellite',   tile: satelliteTile },
+    { name: 'dark',      label: '🌙 Dark',         tile: darkTile },
+  ]
+  adminOverlays.value = [
+    { name: 'teams',       label: '📍 Teams',       layer: teamLayer,       visible: true },
+    { name: 'checkpoints', label: '🎯 Checkpoints', layer: checkpointLayer, visible: true },
+    { name: 'route',       label: '🛤️ Route',       layer: routeLayer,      visible: true },
+  ]
 
-  L.control.layers(
-    { '🌙 Dark': darkTile, '🗺️ Street': streetTile, '⛰️ Topographic': topoTile, '🛰️ Satellite': satelliteTile },
-    { '📍 Teams': teamLayer, '🎯 Checkpoints': checkpointLayer, '🛤️ Route': routeLayer }
-  ).addTo(map)
+  const initName = $q.dark.isActive ? 'dark' : 'street'
+  adminBaseName.value = initName
+  adminCurrentBase = adminBaseLayers.value.find(l => l.name === initName).tile
+  adminCurrentBase.addTo(map)
 
   watch(() => $q.dark.isActive, (isDark) => {
-    const next = isDark ? darkTile : streetTile
-    map.removeLayer(activeBase)
-    next.addTo(map)
-    activeBase = next
+    switchAdminBase(adminBaseLayers.value.find(l => l.name === (isDark ? 'dark' : 'street')))
   })
 
   checkpointLayer.addTo(map)
@@ -410,4 +457,10 @@ onUnmounted(() => {
 <style scoped>
 .tracking-tight { letter-spacing: -0.02em; }
 .opacity-50 { opacity: 0.5; }
+.admin-layer-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+}
 </style>

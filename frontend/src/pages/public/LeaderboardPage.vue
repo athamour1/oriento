@@ -19,7 +19,7 @@
                <q-item-label class="text-weight-bold text-dark text-subtitle1">{{ team.teamName }}</q-item-label>
              </q-item-section>
              <q-item-section side>
-               <q-chip color="blue-1" text-color="primary" class="text-weight-bold text-subtitle1" icon="star">
+               <q-chip color="primary" text-color="white" class="text-weight-bold text-subtitle1" icon="star">
                  {{ team.score }}
                </q-chip>
              </q-item-section>
@@ -67,7 +67,7 @@ const fetchLeaderboard = async () => {
 onMounted(async () => {
   await fetchLeaderboard()
   if (currentEventId) {
-    const socket = useEventSocket(currentEventId)
+    const { socket } = useEventSocket(currentEventId)
     socket.on('scan:created', fetchLeaderboard)
   }
 })
@@ -82,9 +82,13 @@ const getBadgeColor = (index) => {
 
 <style scoped>
 .main-card {
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 16px;
+}
+body.body--dark .main-card {
+  background: var(--q-dark);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 .opacity-80 { opacity: 0.8; }
 .max-w-sm { max-width: 500px; margin: 0 auto; }

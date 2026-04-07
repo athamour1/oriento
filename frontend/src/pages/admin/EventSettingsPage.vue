@@ -193,5 +193,5 @@ const confirmDelete = () => {
 <style scoped>
 .tracking-tight { letter-spacing: -0.02em; }
 .max-w-md { max-width: 600px; }
-.border-red { border-color: rgba(193,0,21,0.2); }
+.border-red { border-color: rgba(var(--q-negative), 0.2); }
 </style>

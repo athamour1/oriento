@@ -71,6 +71,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
 import { useEventsStore } from 'src/stores/events'
+import { api } from 'boot/axios'
 
 const $q = useQuasar()
 const { t } = useI18n()

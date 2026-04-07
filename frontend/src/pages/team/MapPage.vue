@@ -295,33 +295,6 @@ const fetchEvent = async () => {
     }
 
     if (activeEvent.value.checkpoints && activeEvent.value.checkpoints.length > 0) {
-      // Clear legacy markers from prior iterations
-      markers.value.forEach(m => map.value?.removeLayer(m))
-      markers.value = []
-
-      activeEvent.value.checkpoints.forEach(cp => {
-        const isScanned = activeEvent.value.scannedCheckpointIds?.includes(cp.id)
-        
-        const color = isScanned ? '#43a047' : '#e53935'
-        const marker = L.circleMarker([cp.latitude, cp.longitude], {
-          radius: 11,
-          weight: 3,
-          color: isScanned ? '#2e7d32' : '#b71c1c',
-          fillColor: color,
-          fillOpacity: 0.85,
-        }).bindPopup(`
-          <div style="text-align:center;min-width:120px;">
-            <b>${cp.name}</b><br>
-            <span style="font-size:12px;">${t('rewardPts', { points: cp.pointValue })}</span><br>
-            <span style="font-size:12px;font-weight:bold;color:${color};">
-              ${isScanned ? '✓ ' + t('acquired') : '✗ ' + t('notScannedYet')}
-            </span>
-          </div>
-        `).addTo(map.value)
-        
-        markers.value.push(marker)
-      })
-
       // ── Completion detection ──────────────────────────────────────────────
       const totalCps = activeEvent.value.checkpoints.length
       const scannedCount = activeEvent.value.scannedCheckpointIds?.length ?? 0
@@ -332,6 +305,42 @@ const fetchEvent = async () => {
       }
       allDone.value = nowDone
       teamEventStore.allDone = nowDone
+
+      // Clear old markers
+      markers.value.forEach(m => map.value?.removeLayer(m))
+      markers.value = []
+
+      if (nowDone) {
+        // Show only the return point
+        const retLat = activeEvent.value.returnSameAsStart ? activeEvent.value.startLat : activeEvent.value.returnLat
+        const retLng = activeEvent.value.returnSameAsStart ? activeEvent.value.startLng : activeEvent.value.returnLng
+        if (retLat && retLng) {
+          const retMarker = L.circleMarker([retLat, retLng], {
+            radius: 14, weight: 3, color: '#f9a825', fillColor: '#fdd835', fillOpacity: 1,
+          }).bindPopup(`<div style="text-align:center;"><b>🏁 ${t('returnPoint')}</b><br><span style="font-size:12px;">${t('headBackToStart')}</span></div>`).addTo(map.value)
+          markers.value.push(retMarker)
+          map.value.setView([retLat, retLng], 16, { animate: true })
+        }
+      } else {
+        activeEvent.value.checkpoints.forEach(cp => {
+          const isScanned = activeEvent.value.scannedCheckpointIds?.includes(cp.id)
+          const color = isScanned ? '#43a047' : '#e53935'
+          const marker = L.circleMarker([cp.latitude, cp.longitude], {
+            radius: 11, weight: 3,
+            color: isScanned ? '#2e7d32' : '#b71c1c',
+            fillColor: color, fillOpacity: 0.85,
+          }).bindPopup(`
+            <div style="text-align:center;min-width:120px;">
+              <b>${cp.name}</b><br>
+              <span style="font-size:12px;">${t('rewardPts', { points: cp.pointValue })}</span><br>
+              <span style="font-size:12px;font-weight:bold;color:${color};">
+                ${isScanned ? '✓ ' + t('acquired') : '✗ ' + t('notScannedYet')}
+              </span>
+            </div>
+          `).addTo(map.value)
+          markers.value.push(marker)
+        })
+      }
 
       // Gold user marker when finished
       if (userMarker.value) {

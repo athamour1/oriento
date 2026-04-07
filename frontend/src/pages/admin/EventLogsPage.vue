@@ -194,23 +194,63 @@ function makeRingIcon(filled, total) {
 }
 
 // ─── Route polyline ───────────────────────────────────────────────────────
+let activePolyline = null
+let latestMarker = null
+
 async function renderRoute() {
   routeLayer.clearLayers()
+  activePolyline = null
+  latestMarker = null
   if (!map || selectedTeamId.value === null) return
   try {
     const res = await api.get(`/admin/events/${eventId}/teams/${selectedTeamId.value}/route`)
     const points = res.data
-    if (points.length < 2) return
+    if (points.length < 1) return
     const latlngs = points.map(p => [p.latitude, p.longitude])
     const color = teamHex(selectedTeamId.value)
-    L.polyline(latlngs, { color, weight: 3, opacity: 0.75, dashArray: '6 4' }).addTo(routeLayer)
-    // Start/end markers
-    L.circleMarker(latlngs[0], { radius: 6, color, fillColor: '#fff', fillOpacity: 1, weight: 2 })
-      .bindTooltip('▶ Start', { permanent: false }).addTo(routeLayer)
-    L.circleMarker(latlngs[latlngs.length - 1], { radius: 6, color, fillColor: color, fillOpacity: 1, weight: 2 })
-      .bindTooltip('⬛ Latest', { permanent: false }).addTo(routeLayer)
+
+    if (latlngs.length >= 2) {
+      activePolyline = L.polyline(latlngs, { color, weight: 3, opacity: 0.75, dashArray: '6 4' })
+      routeLayer.addLayer(activePolyline)
+      L.circleMarker(latlngs[0], { radius: 6, color, fillColor: '#fff', fillOpacity: 1, weight: 2 })
+        .bindTooltip('▶ Start', { permanent: false }).addTo(routeLayer)
+    }
+
+    latestMarker = L.circleMarker(latlngs[latlngs.length - 1], { radius: 6, color, fillColor: color, fillOpacity: 1, weight: 2 })
+      .bindTooltip('⬛ Latest', { permanent: false })
+    routeLayer.addLayer(latestMarker)
   } catch {
     // Route unavailable — silently skip
+  }
+}
+
+function extendRoute(teamId, latitude, longitude) {
+  if (selectedTeamId.value !== teamId || !map) return
+  const latlng = [latitude, longitude]
+  const color = teamHex(teamId)
+
+  if (activePolyline) {
+    activePolyline.addLatLng(latlng)
+  } else {
+    // First point — create the polyline now that we have 2 points
+    // (latestMarker holds the previous single point if any)
+    if (latestMarker) {
+      const prev = latestMarker.getLatLng()
+      activePolyline = L.polyline([prev, latlng], { color, weight: 3, opacity: 0.75, dashArray: '6 4' })
+      routeLayer.addLayer(activePolyline)
+      // Retroactively add start marker
+      L.circleMarker(prev, { radius: 6, color, fillColor: '#fff', fillOpacity: 1, weight: 2 })
+        .bindTooltip('▶ Start', { permanent: false }).addTo(routeLayer)
+    }
+  }
+
+  // Move the "latest" marker to the new position
+  if (latestMarker) {
+    latestMarker.setLatLng(latlng)
+  } else {
+    latestMarker = L.circleMarker(latlng, { radius: 6, color, fillColor: color, fillOpacity: 1, weight: 2 })
+      .bindTooltip('⬛ Latest', { permanent: false })
+    routeLayer.addLayer(latestMarker)
   }
 }
 
@@ -340,12 +380,14 @@ onMounted(async () => {
   })
 
   socket.on('location:updated', (payload) => {
-    // Patch the location in our cached list and re-render
+    // Patch the location in our cached list and re-render team dot
     const idx = lastLocations.findIndex(l => l.team.id === payload.teamId)
     const entry = { latitude: payload.latitude, longitude: payload.longitude, updatedAt: new Date().toISOString(), team: { id: payload.teamId, username: payload.teamUsername } }
     if (idx >= 0) lastLocations[idx] = entry
     else lastLocations.push(entry)
     renderTeams(lastLocations)
+    // Extend the route polyline live if this team is selected
+    extendRoute(payload.teamId, payload.latitude, payload.longitude)
   })
 })
 

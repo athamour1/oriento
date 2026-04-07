@@ -3,7 +3,6 @@
     <q-header elevated class="bg-primary text-white">
       <q-toolbar>
         <q-toolbar-title class="text-weight-bold tracking-tight">🧭 Oriento</q-toolbar-title>
-        <LanguageSwitcher />
         <q-btn v-if="isInstallable" flat dense round icon="download" @click="promptInstall">
           <q-tooltip>{{ $t('installApp') }}</q-tooltip>
         </q-btn>
@@ -33,7 +32,6 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { api } from 'boot/axios'
-import LanguageSwitcher from 'components/LanguageSwitcher.vue'
 import { usePwaInstall } from 'src/composables/usePwaInstall'
 
 const $q = useQuasar()

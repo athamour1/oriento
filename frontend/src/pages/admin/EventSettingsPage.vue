@@ -63,6 +63,25 @@
       </q-form>
     </q-card>
 
+    <!-- Language preference (admin only) -->
+    <q-card flat bordered class="q-pa-md shadow-2 q-mb-lg">
+      <div class="row items-center q-mb-md">
+        <q-icon name="translate" color="primary" class="q-mr-sm" />
+        <div class="text-subtitle1 text-weight-bold">{{ $t('language') }}</div>
+      </div>
+      <q-btn-toggle
+        v-model="appLang"
+        unelevated
+        rounded
+        toggle-color="primary"
+        :options="[
+          { label: $t('english'), value: 'en-US' },
+          { label: $t('greek'),   value: 'el' },
+        ]"
+        @update:model-value="applyLang"
+      />
+    </q-card>
+
     <q-card flat bordered class="q-pa-md q-mb-lg" style="border-color: var(--q-primary);">
       <div class="row items-center q-mb-sm">
         <q-icon name="share" color="primary" class="q-mr-sm" />
@@ -92,7 +111,13 @@ import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
 
 const $q = useQuasar()
-const { t } = useI18n()
+const { t, locale } = useI18n()
+
+const appLang = ref(localStorage.getItem('appLang') || 'en-US')
+const applyLang = (lang) => {
+  locale.value = lang
+  localStorage.setItem('appLang', lang)
+}
 const route = useRoute()
 const router = useRouter()
 const eventId = route.params.eventId

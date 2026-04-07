@@ -1,8 +1,5 @@
 <template>
   <q-page class="flex flex-center">
-    <div class="absolute-top-right q-pa-md z-top">
-      <LanguageSwitcher />
-    </div>
     <div class="main-card q-pa-xl shadow-up-10 rounded-borders">
       <div class="text-center q-mb-lg">
         <h3 class="text-h4 text-weight-bold tracking-tight branded-title q-my-none">🧭 Oriento</h3>
@@ -51,7 +48,6 @@ import { useRouter } from 'vue-router'
 import { api } from 'boot/axios'
 import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
-import LanguageSwitcher from 'components/LanguageSwitcher.vue'
 
 const $q = useQuasar()
 const { t } = useI18n()

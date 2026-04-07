@@ -18,6 +18,21 @@
       </div>
     </transition>
 
+    <!-- Layer picker -->
+    <q-btn round unelevated icon="layers" color="white" text-color="grey-8" size="md" class="layer-btn shadow-4">
+      <q-menu anchor="top left" self="bottom left" :offset="[0, 8]">
+        <q-list dense style="min-width:160px">
+          <q-item-label header class="text-caption text-weight-bold">{{ $t('mapLayer') }}</q-item-label>
+          <q-item v-for="layer in baseLayers" :key="layer.name" clickable @click="switchBase(layer)" v-close-popup>
+            <q-item-section avatar>
+              <q-radio :model-value="activeBaseName" :val="layer.name" color="primary" />
+            </q-item-section>
+            <q-item-section>{{ layer.label }}</q-item-section>
+          </q-item>
+        </q-list>
+      </q-menu>
+    </q-btn>
+
     <!-- Locate me button -->
     <q-btn
       round unelevated
@@ -78,6 +93,17 @@ const gpsPermissionDenied = ref(false)
 const gpsRetrying = ref(false)
 const followMode = ref(false)
 const gpsReady = ref(false)
+const activeBaseName = ref('street')
+const baseLayers = ref([])
+let currentBaseTile = null
+
+function switchBase(layer) {
+  if (!map.value || !layer) return
+  if (currentBaseTile) map.value.removeLayer(currentBaseTile)
+  layer.tile.addTo(map.value)
+  currentBaseTile = layer.tile
+  activeBaseName.value = layer.name
+}
 let watchId = null
 let eventInterval = null
 let initialMapFit = false
@@ -139,32 +165,27 @@ onMounted(async () => {
     attribution: '© CartoDB'
   })
 
-  const initialLayer = $q.dark.isActive ? dark : street
+  baseLayers.value = [
+    { name: 'street',    label: '🗺️ Street',      tile: street },
+    { name: 'topo',      label: '⛰️ Topographic', tile: topo },
+    { name: 'satellite', label: '🛰️ Satellite',   tile: satellite },
+    { name: 'dark',      label: '🌙 Dark',         tile: dark },
+  ]
 
-  map.value = L.map('map', {
-    center: [0, 0],
-    zoom: 2,
-    layers: [initialLayer]
-  })
+  const initialName = $q.dark.isActive ? 'dark' : 'street'
+  activeBaseName.value = initialName
+  const initialLayer = baseLayers.value.find(l => l.name === initialName).tile
+
+  currentBaseTile = initialLayer
+  map.value = L.map('map', { center: [0, 0], zoom: 2, layers: [initialLayer] })
 
   // Disarm follow mode when the user manually drags or zooms
   map.value.on('dragstart', () => { followMode.value = false })
   map.value.on('zoomstart', (e) => { if (e.originalEvent) followMode.value = false })
 
-  L.control.layers({
-    "🌙 Dark": dark,
-    "🗺️ Street": street,
-    "⛰️ Topographic": topo,
-    "🛰️ Satellite": satellite
-  }).addTo(map.value)
-
   // Auto-swap base tile when dark mode toggles
-  let activeBase = initialLayer
   watch(() => $q.dark.isActive, (isDark) => {
-    const next = isDark ? dark : street
-    map.value.removeLayer(activeBase)
-    next.addTo(map.value)
-    activeBase = next
+    switchBase(baseLayers.value.find(l => l.name === (isDark ? 'dark' : 'street')))
   })
 
   delete L.Icon.Default.prototype._getIconUrl;
@@ -323,7 +344,13 @@ const fetchEvent = async () => {
 </script>
 
 <style scoped>
-/* Locate me button */
+/* Map control buttons */
+.layer-btn {
+  position: absolute;
+  bottom: 80px;
+  right: 16px;
+  z-index: 1000;
+}
 .locate-btn {
   position: absolute;
   bottom: 24px;

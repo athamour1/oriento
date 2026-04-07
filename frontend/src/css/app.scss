@@ -3,7 +3,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 // ── Global typography ───────────────────────────────────────────────────────
-* { font-family: 'Inter', 'Roboto', sans-serif; }
+* {
+  font-family: 'Inter', 'Roboto', sans-serif;
+}
 
 body {
   -webkit-font-smoothing: antialiased;
@@ -18,8 +20,16 @@ body {
 }
 
 // ── Smooth dark-mode transitions ────────────────────────────────────────────
-body, .q-card, .q-drawer, .q-header, .q-footer, .q-page,
-.q-table, .q-item, .q-toolbar, .q-field__inner {
+body,
+.q-card,
+.q-drawer,
+.q-header,
+.q-footer,
+.q-page,
+.q-table,
+.q-item,
+.q-toolbar,
+.q-field__inner {
   transition: background-color 0.25s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
@@ -40,6 +50,11 @@ body, .q-card, .q-drawer, .q-header, .q-footer, .q-page,
 // ── Consistent card border radius ───────────────────────────────────────────
 .q-card {
   border-radius: 14px !important;
+}
+
+// ── Dark map tile — boost brightness & contrast so labels are readable ───────
+.dark-tiles {
+  filter: brightness(2.5) contrast(1.15) saturate(1.2);
 }
 
 // ── Consistent table header style ───────────────────────────────────────────

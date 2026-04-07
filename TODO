@@ -21,19 +21,30 @@
 - [X] Fit map for teams on the page because now it shows a vertical scroll which means it overflows the page
 - [X] make all buttons no-caps in the app
 - [X] add i18n
-- [ ] add more customaization for the events and checkpoints
-  - [ ] add a timer for the event if the admin wants
-  - [ ] add the ability to add or remove the feature for the team to show their location or not from the events settings
+- [X] add more customaization for the events and checkpoints
+  - [X] add a timer for the event if the admin wants
+  - [X] add the ability to add or remove the feature for the team to show their location or not from the events settings
 - [X] always show the team location on the admin dashboard
 - [X] on activity feed map to center the map on the points shown 
 - [X] when a team scans all points show on the map that they are done and its time to go back to the starting point
 - [X] Relogin fucntionality and refresh jwt
-- [ ] Make the logo compass emoticon
-- [ ] Fix the activity monitor the map should show the points better becuase now with the transparency its a problem
-- [ ] Fix the colors on teams map blue where am i green when its scaned red when not also when the user presses the point show them the status also
-- [ ] Fix the camera tab for teams it should be bigger and leaner
-- [ ] Also let the admin to choose whenever the teams can see their location with the gps
-- [ ] Let the admin choose the points the first team they scan a point
-- [ ] Keep the teams route from the gps, show the amdin can confirm the points exploration route
-- [ ] fix the activity feed the location of the current team
-- [ ] fix the activity feed to filter the teams shown also let the amdin to choose to show the route a team took
+- [X] Make the logo compass emoticon
+- [X] Fix the activity monitor the map should show the points better becuase now with the transparency its a problem
+- [X] Fix the colors on teams map blue where am i green when its scaned red when not also when the user presses the point show them the status also
+- [X] Fix the camera tab for teams it should be bigger and leaner
+- [X] Also let the admin to choose whenever the teams can see their location with the gps
+- [X] Let the admin choose the points the first team they scan a point
+- [X] Keep the teams route from the gps, show the amdin can confirm the points exploration route
+- [X] fix the activity feed the location of the current team
+- [X] fix the activity feed to filter the teams shown also let the amdin to choose to show the route a team took
+- [X] Convert realtime from polling to websockets
+- [X] Fix camera for teams view it seems to not scale correctly and have blannk sections
+- [ ] the favicon even if it seems to be correct its too small
+- [X] for i 18n remove the option and make it so the admin can chnage this only
+- [X] on teams map center to the points only when the page is loded or the event starts after that center on the current location 
+- [X] change the layers menu on maps make it to feel part of the app
+- [X] change the card of the finished allow me to close it because i cant also make it maybe a banner on top of the footer
+- [X] remove all notifications for admin and teams and keep only the notification for the checkpoint scaned if i have scaned it again show a diferent notifications and move it on the top right under the header
+- [X] Add a locator button for teams to zoom onto their location right bottom of the map
+- [ ] live activity feed should display live only when the sokcet is working corectly
+- [X] the app should have gps make it so if a user presses no for the share of their location to show a page that will retry to enalbe it

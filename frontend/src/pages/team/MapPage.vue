@@ -20,13 +20,16 @@
 
     <!-- Layer picker -->
     <q-btn round unelevated icon="layers" color="white" text-color="grey-8" size="md" class="layer-btn shadow-4">
-      <q-menu anchor="bottom right" self="top right" :offset="[0, 8]">
-        <q-list dense style="min-width:160px">
-          <q-item-label header class="text-caption text-weight-bold">{{ $t('mapLayer') }}</q-item-label>
-          <q-item v-for="layer in baseLayers" :key="layer.name" clickable @click="switchBase(layer)" v-close-popup>
-            <q-item-section avatar>
-              <q-radio :model-value="activeBaseName" :val="layer.name" color="primary" />
-            </q-item-section>
+      <q-menu anchor="bottom right" self="top right" :offset="[0, 8]" class="layer-menu">
+        <q-list dense style="min-width:160px; padding: 6px;">
+          <q-item
+            v-for="layer in baseLayers"
+            :key="layer.name"
+            clickable
+            @click="switchBase(layer)"
+            v-close-popup
+            :class="['layer-item', { 'layer-item--active': activeBaseName === layer.name }]"
+          >
             <q-item-section>{{ layer.label }}</q-item-section>
           </q-item>
         </q-list>
@@ -414,8 +417,15 @@ const fetchEvent = async () => {
 .banner-title { font-size: 0.95rem; font-weight: 800; letter-spacing: -0.01em; }
 .banner-sub { font-size: 0.78rem; opacity: 0.85; margin-top: 1px; }
 
+
 .slide-up-enter-active { transition: transform 0.35s ease, opacity 0.35s ease; }
 .slide-up-leave-active { transition: transform 0.25s ease, opacity 0.25s ease; }
 .slide-up-enter-from  { transform: translateY(40px); opacity: 0; }
 .slide-up-leave-to    { transform: translateY(40px); opacity: 0; }
+</style>
+
+<style>
+.layer-menu { border-radius: 14px !important; overflow: hidden; }
+.layer-item { border-radius: 8px; margin-bottom: 2px; transition: background 0.15s; }
+.layer-item--active { background: rgba(25, 118, 210, 0.12); color: #1976d2; font-weight: 700; }
 </style>

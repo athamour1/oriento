@@ -19,17 +19,26 @@
         <!-- Custom layer picker -->
         <div class="admin-layer-btn">
           <q-btn round unelevated icon="layers" color="white" text-color="grey-8" size="sm" class="shadow-3">
-            <q-menu anchor="top right" self="bottom right" :offset="[0, 8]">
-              <q-list dense style="min-width:170px">
-                <q-item-label header class="text-caption text-weight-bold">{{ $t('mapLayer') }}</q-item-label>
-                <q-item v-for="layer in adminBaseLayers" :key="layer.name" clickable @click="switchAdminBase(layer)" v-close-popup>
-                  <q-item-section avatar><q-radio :model-value="adminBaseName" :val="layer.name" color="primary" /></q-item-section>
+            <q-menu anchor="top right" self="bottom right" :offset="[0, 8]" class="layer-menu">
+              <q-list dense style="min-width:170px; padding: 6px;">
+                <q-item
+                  v-for="layer in adminBaseLayers"
+                  :key="layer.name"
+                  clickable
+                  @click="switchAdminBase(layer)"
+                  v-close-popup
+                  :class="['layer-item', { 'layer-item--active': adminBaseName === layer.name }]"
+                >
                   <q-item-section>{{ layer.label }}</q-item-section>
                 </q-item>
-                <q-separator />
-                <q-item-label header class="text-caption text-weight-bold">{{ $t('overlays') }}</q-item-label>
-                <q-item v-for="ov in adminOverlays" :key="ov.name" clickable @click="toggleOverlay(ov)">
-                  <q-item-section avatar><q-checkbox :model-value="ov.visible" color="primary" @update:model-value="toggleOverlay(ov)" /></q-item-section>
+                <q-separator class="q-my-xs" />
+                <q-item
+                  v-for="ov in adminOverlays"
+                  :key="ov.name"
+                  clickable
+                  @click="toggleOverlay(ov)"
+                  :class="['layer-item', { 'layer-item--active': ov.visible }]"
+                >
                   <q-item-section>{{ ov.label }}</q-item-section>
                 </q-item>
               </q-list>
@@ -463,4 +472,10 @@ onUnmounted(() => {
   right: 10px;
   z-index: 1000;
 }
+</style>
+
+<style>
+.layer-menu { border-radius: 14px !important; overflow: hidden; }
+.layer-item { border-radius: 8px; margin-bottom: 2px; transition: background 0.15s; }
+.layer-item--active { background: rgba(25, 118, 210, 0.12); color: #1976d2; font-weight: 700; }
 </style>

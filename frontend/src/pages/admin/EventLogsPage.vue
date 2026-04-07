@@ -473,6 +473,15 @@ onUnmounted(() => {
 .admin-page { max-width: 900px; margin: 0 auto; }
 .tracking-tight { letter-spacing: -0.02em; }
 .opacity-50 { opacity: 0.5; }
+.admin-zoom-btns {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 .admin-layer-btn {
   position: absolute;
   top: 10px;

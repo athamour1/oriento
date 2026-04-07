@@ -7,13 +7,13 @@
       <div v-if="allDone && !bannerDismissed" class="completion-banner">
         <div class="banner-inner">
           <div class="banner-left">
-            <span class="trophy">🏆</span>
+            <span class="trophy">🏁</span>
             <div>
               <div class="banner-title">{{ $t('allCheckpointsDone') }}</div>
-              <div class="banner-sub">{{ $t('headBackToStart') }}</div>
+              <div class="banner-sub">{{ $t('followReturnPoint') }}</div>
             </div>
           </div>
-          <q-btn flat round dense icon="close" color="white" @click.stop="bannerDismissed = true" />
+          <q-btn flat round dense icon="close" color="dark" @click.stop="bannerDismissed = true" />
         </div>
       </div>
     </transition>
@@ -431,14 +431,14 @@ const fetchEvent = async () => {
   pointer-events: auto;
 }
 .banner-inner {
-  background: linear-gradient(135deg, #1b5e20, #2e7d32);
-  color: #fff;
+  background: linear-gradient(135deg, #e65100, #f9a825);
+  color: #1a0a00;
   border-radius: 14px;
   padding: 12px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+  box-shadow: 0 4px 20px rgba(249,168,37,0.45);
 }
 .banner-left {
   display: flex;

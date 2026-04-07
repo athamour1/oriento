@@ -52,7 +52,7 @@
           </template>
         </q-input>
 
-        <q-checkbox
+        <q-toggle
           v-model="keepLoggedIn"
           :label="$t('keepMeLoggedIn')"
           color="primary"

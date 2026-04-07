@@ -87,11 +87,25 @@ export class EventsService {
     return { ...activeEvent, scannedCheckpointIds: scans.map((s: any) => s.checkpointId) };
   }
 
-  upsertTeamLocation(userId: number, dto: UpdateLocationDto) {
-    return this.prisma.teamLocation.upsert({
-      where: { teamId: userId },
-      create: { teamId: userId, latitude: dto.latitude, longitude: dto.longitude },
-      update: { latitude: dto.latitude, longitude: dto.longitude },
+  async upsertTeamLocation(userId: number, dto: UpdateLocationDto) {
+    const [location] = await this.prisma.$transaction([
+      this.prisma.teamLocation.upsert({
+        where: { teamId: userId },
+        create: { teamId: userId, latitude: dto.latitude, longitude: dto.longitude },
+        update: { latitude: dto.latitude, longitude: dto.longitude },
+      }),
+      this.prisma.teamRoute.create({
+        data: { teamId: userId, latitude: dto.latitude, longitude: dto.longitude },
+      }),
+    ]);
+    return location;
+  }
+
+  getTeamRoute(teamId: number) {
+    return this.prisma.teamRoute.findMany({
+      where: { teamId },
+      orderBy: { recordedAt: 'asc' },
+      select: { latitude: true, longitude: true, recordedAt: true },
     });
   }
 }

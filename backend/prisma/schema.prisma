@@ -23,6 +23,7 @@ model User {
 
   scans        Scan[]
   location     TeamLocation?
+  route        TeamRoute[]
 }
 
 model Event {
@@ -73,4 +74,14 @@ model TeamLocation {
   updatedAt DateTime @updatedAt
 
   team      User     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model TeamRoute {
+  id          Int      @id @default(autoincrement())
+  teamId      Int
+  latitude    Float
+  longitude   Float
+  recordedAt  DateTime @default(now())
+
+  team        User     @relation(fields: [teamId], references: [id], onDelete: Cascade)
 }

@@ -57,7 +57,7 @@
         <q-btn
           v-if="selectedTeamId !== null"
           flat dense round icon="close" size="sm" color="grey-7"
-          @click="selectedTeamId = null"
+          @click="selectedTeamId = null; routeLayer.clearLayers(); renderTeams(lastLocations)"
         >
           <q-tooltip>{{ $t('showAllTeams') }}</q-tooltip>
         </q-btn>
@@ -108,6 +108,7 @@ let map = null
 let hasFit = false
 const checkpointLayer = L.layerGroup()
 const teamLayer = L.layerGroup()
+const routeLayer = L.layerGroup()
 
 // Team colours — consistent by team id
 const TEAM_COLORS = ['primary', 'purple', 'teal', 'deep-orange', 'red', 'brown']
@@ -137,9 +138,10 @@ const filteredLogs = computed(() =>
     : logs.value.filter(l => l.team.id === selectedTeamId.value)
 )
 
-function toggleTeam(id) {
+async function toggleTeam(id) {
   selectedTeamId.value = selectedTeamId.value === id ? null : id
   renderTeams(lastLocations)
+  await renderRoute()
 }
 
 // ─── SVG Arc Ring helpers ──────────────────────────────────────────────────
@@ -177,6 +179,27 @@ function makeRingIcon(filled, total) {
   const svg = buildArcSvg(filled, total)
   const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg)
   return L.icon({ iconUrl: url, iconSize: [52, 52], iconAnchor: [26, 26], popupAnchor: [0, -26] })
+}
+
+// ─── Route polyline ───────────────────────────────────────────────────────
+async function renderRoute() {
+  routeLayer.clearLayers()
+  if (!map || selectedTeamId.value === null) return
+  try {
+    const res = await api.get(`/admin/events/${eventId}/teams/${selectedTeamId.value}/route`)
+    const points = res.data
+    if (points.length < 2) return
+    const latlngs = points.map(p => [p.latitude, p.longitude])
+    const color = teamHex(selectedTeamId.value)
+    L.polyline(latlngs, { color, weight: 3, opacity: 0.75, dashArray: '6 4' }).addTo(routeLayer)
+    // Start/end markers
+    L.circleMarker(latlngs[0], { radius: 6, color, fillColor: '#fff', fillOpacity: 1, weight: 2 })
+      .bindTooltip('▶ Start', { permanent: false }).addTo(routeLayer)
+    L.circleMarker(latlngs[latlngs.length - 1], { radius: 6, color, fillColor: color, fillOpacity: 1, weight: 2 })
+      .bindTooltip('⬛ Latest', { permanent: false }).addTo(routeLayer)
+  } catch {
+    // Route unavailable — silently skip
+  }
 }
 
 // ─── fetch & render ────────────────────────────────────────────────────────
@@ -269,7 +292,7 @@ onMounted(async () => {
 
   L.control.layers(
     { '🌙 Dark': darkTile, '🗺️ Street': streetTile, '⛰️ Topographic': topoTile, '🛰️ Satellite': satelliteTile },
-    { '📍 Teams': teamLayer, '🎯 Checkpoints': checkpointLayer }
+    { '📍 Teams': teamLayer, '🎯 Checkpoints': checkpointLayer, '🛤️ Route': routeLayer }
   ).addTo(map)
 
   watch(() => $q.dark.isActive, (isDark) => {
@@ -281,6 +304,7 @@ onMounted(async () => {
 
   checkpointLayer.addTo(map)
   teamLayer.addTo(map)
+  routeLayer.addTo(map)
 
   setTimeout(() => map.invalidateSize(), 150)
 

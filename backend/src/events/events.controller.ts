@@ -63,4 +63,10 @@ export class EventsController {
   remove(@Param('id') id: string) {
     return this.eventsService.remove(+id);
   }
+
+  @Roles(Role.ADMIN)
+  @Get(':id/teams/:teamId/route')
+  getTeamRoute(@Param('teamId') teamId: string) {
+    return this.eventsService.getTeamRoute(+teamId);
+  }
 }

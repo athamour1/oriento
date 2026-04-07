@@ -18,8 +18,14 @@
       </div>
     </transition>
 
+    <!-- Zoom controls -->
+    <div class="zoom-btns">
+      <q-btn round unelevated icon="add" color="white" text-color="grey-8" size="sm" class="shadow-4" @click="map.zoomIn()" />
+      <q-btn round unelevated icon="remove" color="white" text-color="grey-8" size="sm" class="shadow-4" @click="map.zoomOut()" />
+    </div>
+
     <!-- Layer picker -->
-    <q-btn round unelevated icon="layers" color="white" text-color="grey-8" size="md" class="layer-btn shadow-4">
+    <q-btn round elevated icon="layers" color="white" text-color="grey-8" size="md" class="layer-btn shadow-4">
       <q-menu anchor="bottom right" self="top right" :offset="[0, 8]" class="layer-menu">
         <q-list dense style="min-width:160px; padding: 6px;">
           <q-item
@@ -181,7 +187,7 @@ onMounted(async () => {
   const initialLayer = baseLayers.value.find(l => l.name === initialName).tile
 
   currentBaseTile = initialLayer
-  map.value = L.map('map', { center: [0, 0], zoom: 2, layers: [initialLayer] })
+  map.value = L.map('map', { center: [0, 0], zoom: 2, layers: [initialLayer], zoomControl: false })
 
   // Disarm follow mode when the user manually drags or zooms
   map.value.on('dragstart', () => { followMode.value = false })
@@ -236,6 +242,7 @@ async function onPosition(pos) {
       }
     } else {
       userMarker.value.setLatLng([latitude, longitude])
+      userMarker.value.bringToFront()
     }
   }
 
@@ -332,6 +339,9 @@ const fetchEvent = async () => {
         }
       }
 
+      // Keep GPS dot on top of checkpoint markers
+      if (userMarker.value) userMarker.value.bringToFront()
+
       if (!initialMapFit) {
         setTimeout(() => {
           map.value.invalidateSize()
@@ -349,6 +359,15 @@ const fetchEvent = async () => {
 
 <style scoped>
 /* Map control buttons */
+.zoom-btns {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 .layer-btn {
   position: absolute;
   top: 16px;

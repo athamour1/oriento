@@ -7,8 +7,12 @@
     </div>
 
     <!-- Map Preview -->
-    <q-card flat bordered class="shadow-2 q-mb-lg overflow-hidden" style="border-radius:14px;">
+    <q-card flat bordered class="shadow-2 q-mb-lg overflow-hidden" style="border-radius:14px; position: relative;">
       <div id="admin-map" style="height: 320px; width: 100%;"></div>
+      <div class="admin-zoom-btns">
+        <q-btn round unelevated color="white" text-color="dark" icon="add" size="sm" @click="map && map.zoomIn()" />
+        <q-btn round unelevated color="white" text-color="dark" icon="remove" size="sm" @click="map && map.zoomOut()" />
+      </div>
     </q-card>
 
     <!-- Checkpoints Table -->
@@ -114,7 +118,7 @@ onMounted(async () => {
   delete L.Icon.Default.prototype._getIconUrl
   L.Icon.Default.mergeOptions({ iconRetinaUrl: markerIcon2x, iconUrl: markerIcon, shadowUrl: markerShadow })
   await nextTick()
-  map = L.map('admin-map', { doubleClickZoom: false }).setView([0, 0], 2)
+  map = L.map('admin-map', { doubleClickZoom: false, zoomControl: false }).setView([0, 0], 2)
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map)
   map.on('dblclick', (e) => {
     form.value.latitude = Number(e.latlng.lat.toFixed(6))
@@ -214,4 +218,13 @@ const confirmDelete = (cp) => {
 <style scoped>
 .admin-page { max-width: 900px; margin: 0 auto; }
 .tracking-tight { letter-spacing: -0.02em; }
+.admin-zoom-btns {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 </style>

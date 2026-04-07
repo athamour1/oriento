@@ -73,6 +73,7 @@ import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { useEventsStore } from 'src/stores/events'
 import { usePwaInstall } from 'src/composables/usePwaInstall'
+import { api } from 'boot/axios'
 
 const $q = useQuasar()
 const leftDrawerOpen = ref(false)

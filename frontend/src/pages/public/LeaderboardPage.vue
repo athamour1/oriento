@@ -34,45 +34,42 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { api } from 'boot/axios'
 import { useRoute } from 'vue-router'
+import { useEventSocket } from 'src/composables/useEventSocket'
 
 const leaderboard = ref([])
 const route = useRoute()
-let poller = null
 let currentEventId = null
 
 const fetchLeaderboard = async () => {
   try {
     let eventId = currentEventId || route.params.eventId
-    
-    // If accessed through nested team routing without explicit parameter
+
     if (!eventId) {
       const activeEv = await api.get('/team/events/active')
       if (activeEv.data?.id) {
         eventId = activeEv.data.id
         currentEventId = eventId
       } else {
-        return // Fast fail render gracefully instead of 404ing
+        return
       }
     }
-    
+
     const res = await api.get(`/public/events/${eventId}/leaderboard`)
-    // Backend now returns { eventName, eventDescription, leaderboard }
     leaderboard.value = Array.isArray(res.data) ? res.data : res.data.leaderboard
   } catch {
-    // Non-critical polling failure — UI shows stale data
+    // Non-critical failure — UI shows stale data
   }
 }
 
-onMounted(() => {
-  fetchLeaderboard()
-  poller = setInterval(fetchLeaderboard, 5000)
-})
-
-onUnmounted(() => {
-  if (poller) clearInterval(poller)
+onMounted(async () => {
+  await fetchLeaderboard()
+  if (currentEventId) {
+    const socket = useEventSocket(currentEventId)
+    socket.on('scan:created', fetchLeaderboard)
+  }
 })
 
 const getBadgeColor = (index) => {

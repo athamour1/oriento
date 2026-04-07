@@ -17,7 +17,7 @@
     </q-card>
 
     <!-- Modal -->
-    <q-dialog v-model="showDialog">
+    <q-dialog v-model="showDialog" @hide="onDialogHide">
       <q-card style="min-width: 380px" class="q-pa-sm">
         <q-card-section>
           <div class="text-h6 text-weight-bold tracking-tight">{{ $t('registerNewTeam') }}</div>
@@ -25,7 +25,15 @@
         </q-card-section>
         <q-card-section class="q-pt-none">
           <q-form @submit="createTeam" class="q-gutter-md">
-            <q-input v-model="form.username" :label="$t('teamUsername')" outlined :rules="[val => !!val || 'Required']" />
+            <q-input
+              v-model="form.username"
+              :label="$t('teamUsername')"
+              outlined
+              :error="!!usernameError"
+              :error-message="usernameError"
+              :rules="[val => !!val || 'Required']"
+              @update:model-value="usernameError = ''"
+            />
             <q-input v-model="form.password" :label="$t('teamPassword')" outlined type="password" :rules="[val => !!val || 'Required']" />
             <div class="row justify-end q-mt-md q-gutter-sm">
               <q-btn flat :label="$t('cancel')" color="grey-7" v-close-popup no-caps />
@@ -53,6 +61,7 @@ const eventId = route.params.eventId
 const teams = ref([])
 const showDialog = ref(false)
 const form = ref({ username: '', password: '' })
+const usernameError = ref('')
 
 const columns = computed(() => [
   { name: 'id', required: true, label: t('id'), align: 'left', field: 'id', sortable: true },
@@ -71,14 +80,24 @@ onMounted(() => {
   fetchTeams()
 })
 
+const onDialogHide = () => {
+  form.value = { username: '', password: '' }
+  usernameError.value = ''
+}
+
 const createTeam = async () => {
   try {
     await api.post(`/admin/events/${eventId}/teams`, form.value)
     showDialog.value = false
     form.value = { username: '', password: '' }
+    usernameError.value = ''
     fetchTeams()
-  } catch(e) {
-    console.error(e.response?.data?.message || e)
+  } catch (e) {
+    if (e.response?.status === 409) {
+      usernameError.value = t('usernameTaken')
+    } else {
+      $q.notify({ type: 'negative', message: e.response?.data?.message || t('failedToSaveSettings'), position: 'top-right', timeout: 2500 })
+    }
   }
 }
 

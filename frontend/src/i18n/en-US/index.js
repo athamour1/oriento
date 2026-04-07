@@ -137,6 +137,7 @@ export default {
   notScannedYet: 'Not scanned yet',
   eventTimer: 'Event Timer',
   eventTimerDesc: 'Scans will only be accepted within this time window. Leave blank for no restriction.',
+  usernameTaken: 'Username already taken — choose a different one',
   checkpointMoved: 'Checkpoint position saved',
   checkpointUpdated: 'Checkpoint updated',
   editCheckpoint: 'Edit Checkpoint',

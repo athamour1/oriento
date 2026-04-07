@@ -30,13 +30,12 @@
 
     <!-- New Event Modal -->
     <q-dialog v-model="showNewEventDialog">
-      <q-card style="min-width: 420px; width: 95vw; max-width: 560px; border-radius: 20px; display: flex; flex-direction: column; max-height: 90vh;" class="q-pa-sm">
-        <q-card-section class="q-pb-sm">
+      <q-card style="min-width: 420px; width: 95vw; max-width: 560px; border-radius: 20px; max-height: 90vh; display: flex; flex-direction: column;" class="q-pa-sm">
+        <q-card-section class="q-pb-sm" style="flex-shrink: 0;">
           <div class="text-h6 text-weight-bold tracking-tight">{{ $t('createEventTitle') }}</div>
           <div class="text-caption text-grey-7">{{ $t('defineParameters') }}</div>
         </q-card-section>
-        <q-scroll-area style="flex: 1; min-height: 0;">
-          <q-card-section class="q-pt-none q-pb-lg">
+        <q-card-section class="q-pt-none q-pb-lg" style="overflow-y: auto; flex: 1;">
             <q-form @submit="createEvent" class="q-gutter-md">
 
             <q-input
@@ -92,9 +91,8 @@
               <q-btn flat :label="$t('cancel')" color="grey-7" v-close-popup no-caps />
               <q-btn unelevated :label="$t('deployEvent')" color="primary" type="submit" no-caps />
             </div>
-          </q-form>
-          </q-card-section>
-        </q-scroll-area>
+            </q-form>
+        </q-card-section>
       </q-card>
     </q-dialog>
   </q-page>

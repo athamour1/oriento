@@ -29,14 +29,15 @@
     </q-card>
 
     <!-- New Event Modal -->
-    <q-dialog v-model="showNewEventDialog" :content-style="{ borderRadius: '20px', overflow: 'hidden' }">
-      <q-card style="min-width: 420px; width: 95vw; max-width: 560px; border-radius: 20px;" class="q-pa-sm">
-        <q-card-section>
+    <q-dialog v-model="showNewEventDialog">
+      <q-card style="min-width: 420px; width: 95vw; max-width: 560px; border-radius: 20px; display: flex; flex-direction: column; max-height: 90vh;" class="q-pa-sm">
+        <q-card-section class="q-pb-sm">
           <div class="text-h6 text-weight-bold tracking-tight">{{ $t('createEventTitle') }}</div>
           <div class="text-caption text-grey-7">{{ $t('defineParameters') }}</div>
         </q-card-section>
-        <q-card-section class="q-pt-none">
-          <q-form @submit="createEvent" class="q-gutter-md">
+        <q-scroll-area style="flex: 1; min-height: 0;">
+          <q-card-section class="q-pt-none q-pb-lg">
+            <q-form @submit="createEvent" class="q-gutter-md">
 
             <q-input
               v-model="newEvent.name"
@@ -92,7 +93,8 @@
               <q-btn unelevated :label="$t('deployEvent')" color="primary" type="submit" no-caps />
             </div>
           </q-form>
-        </q-card-section>
+          </q-card-section>
+        </q-scroll-area>
       </q-card>
     </q-dialog>
   </q-page>

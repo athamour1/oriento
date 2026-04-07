@@ -78,8 +78,7 @@ const createTeam = async () => {
     form.value = { username: '', password: '' }
     fetchTeams()
   } catch(e) {
-    const msg = e.response?.data?.message || 'Error creating team'
-    void msg
+    console.error(e.response?.data?.message || e)
   }
 }
 

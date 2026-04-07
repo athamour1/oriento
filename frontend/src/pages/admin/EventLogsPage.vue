@@ -13,7 +13,7 @@
         <q-icon name="map" color="primary" class="q-mr-sm" />
         <span class="text-subtitle2 text-weight-bold">{{ $t('checkpointProgMap') }}</span>
         <q-space />
-        <q-badge color="green" label="Live" class="q-pa-xs" />
+        <q-badge :color="isConnected ? 'green' : 'grey'" :label="isConnected ? 'Live' : 'Offline'" class="q-pa-xs" />
       </q-card-section>
       <div id="admin-live-map" style="height: 380px; width: 100%; position: relative;">
         <!-- Custom layer picker -->
@@ -147,6 +147,7 @@ const eventId = route.params.eventId
 const logs = ref([])
 const loading = ref(false)
 const selectedTeamId = ref(null)
+const isConnected = ref(false)
 let map = null
 
 // Layer picker state
@@ -427,7 +428,8 @@ onMounted(async () => {
   await fetchAll()
 
   // Live updates via WebSocket — no polling needed
-  const socket = useEventSocket(eventId)
+  const { socket, isConnected: socketConnected } = useEventSocket(eventId)
+  watch(socketConnected, v => { isConnected.value = v }, { immediate: true })
 
   socket.on('scan:created', (payload) => {
     logs.value.unshift({

@@ -188,9 +188,9 @@ body.body--dark .refresh-note { color: rgba(255,255,255,0.4); }
   transition: transform .15s;
 }
 .lb-row:hover { transform: scale(1.01); }
-.lb-row.gold   { background: rgba(255,193,7,0.15); border-color: rgba(255,193,7,0.4); }
-.lb-row.silver { background: rgba(192,192,192,0.12); border-color: rgba(192,192,192,0.35); }
-.lb-row.bronze { background: rgba(205,127,50,0.12); border-color: rgba(205,127,50,0.4); }
+.lb-row.gold   { background: rgba(255,193,7,0.2);  border-color: rgba(255,193,7,0.55); }
+.lb-row.silver { background: rgba(160,160,180,0.35); border-color: rgba(140,140,170,0.7); }
+.lb-row.bronze { background: rgba(205,127,50,0.2);  border-color: rgba(205,127,50,0.55); }
 
 .rank { font-size: 1.5rem; min-width: 36px; text-align: center; }
 .rank-num { font-size: 1rem; font-weight: 700; color: rgba(0,0,0,0.45); }

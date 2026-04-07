@@ -151,7 +151,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, computed, watch } from 'vue'
+import { ref, onMounted, nextTick, computed } from 'vue'
 import { api } from 'boot/axios'
 import { useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
@@ -222,9 +222,6 @@ onMounted(async () => {
   currentBaseTile = baseLayers.value.find(l => l.name === initName).tile
   currentBaseTile.addTo(map)
 
-  watch(() => $q.dark.isActive, (isDark) => {
-    switchBase(baseLayers.value.find(l => l.name === (isDark ? 'dark' : 'street')))
-  })
   map.on('dblclick', (e) => {
     form.value.latitude = Number(e.latlng.lat.toFixed(6))
     form.value.longitude = Number(e.latlng.lng.toFixed(6))

@@ -134,7 +134,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { api } from 'boot/axios'
 import { useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
@@ -419,9 +419,6 @@ onMounted(async () => {
   adminCurrentBase = adminBaseLayers.value.find(l => l.name === initName).tile
   adminCurrentBase.addTo(map)
 
-  watch(() => $q.dark.isActive, (isDark) => {
-    switchAdminBase(adminBaseLayers.value.find(l => l.name === (isDark ? 'dark' : 'street')))
-  })
 
   checkpointLayer.addTo(map)
   teamLayer.addTo(map)

@@ -13,7 +13,7 @@
               <div class="banner-sub">{{ $t('followReturnPoint') }}</div>
             </div>
           </div>
-          <q-btn flat round dense icon="close" color="dark" @click.stop="bannerDismissed = true" />
+          <q-btn flat round dense icon="close" color="white" @click.stop="bannerDismissed = true" />
         </div>
       </div>
     </transition>
@@ -76,7 +76,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, onUnmounted, watch } from 'vue'
+import { onMounted, ref, onUnmounted } from 'vue'
 import { api } from 'boot/axios'
 import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
@@ -196,10 +196,6 @@ onMounted(async () => {
   map.value.on('dragstart', () => { followMode.value = false })
   map.value.on('zoomstart', (e) => { if (e.originalEvent) followMode.value = false })
 
-  // Auto-swap base tile when dark mode toggles
-  watch(() => $q.dark.isActive, (isDark) => {
-    switchBase(baseLayers.value.find(l => l.name === (isDark ? 'dark' : 'street')))
-  })
 
   delete L.Icon.Default.prototype._getIconUrl;
   L.Icon.Default.mergeOptions({
@@ -315,9 +311,15 @@ const fetchEvent = async () => {
         const retLat = activeEvent.value.returnSameAsStart ? activeEvent.value.startLat : activeEvent.value.returnLat
         const retLng = activeEvent.value.returnSameAsStart ? activeEvent.value.startLng : activeEvent.value.returnLng
         if (retLat && retLng) {
-          const retMarker = L.circleMarker([retLat, retLng], {
-            radius: 14, weight: 3, color: '#f9a825', fillColor: '#fdd835', fillOpacity: 1,
-          }).bindPopup(`<div style="text-align:center;"><b>🏁 ${t('returnPoint')}</b><br><span style="font-size:12px;">${t('headBackToStart')}</span></div>`).addTo(map.value)
+          const flagIcon = L.divIcon({
+            className: '',
+            html: '<div style="font-size:2rem;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));">🏁</div>',
+            iconSize: [36, 36],
+            iconAnchor: [18, 36],
+          })
+          const retMarker = L.marker([retLat, retLng], { icon: flagIcon })
+            .bindPopup(`<div style="text-align:center;"><b>🏁 ${t('returnPoint')}</b><br><span style="font-size:12px;">${t('headBackToStart')}</span></div>`)
+            .addTo(map.value)
           markers.value.push(retMarker)
           map.value.setView([retLat, retLng], 16, { animate: true })
         }
@@ -431,14 +433,14 @@ const fetchEvent = async () => {
   pointer-events: auto;
 }
 .banner-inner {
-  background: linear-gradient(135deg, #e65100, #f9a825);
-  color: #1a0a00;
+  background: linear-gradient(135deg, var(--q-positive), color-mix(in srgb, var(--q-positive) 70%, #fff));
+  color: #fff;
   border-radius: 14px;
   padding: 12px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 4px 20px rgba(249,168,37,0.45);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 .banner-left {
   display: flex;

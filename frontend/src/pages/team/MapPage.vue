@@ -313,9 +313,9 @@ const fetchEvent = async () => {
         if (retLat && retLng) {
           const flagIcon = L.divIcon({
             className: '',
-            html: '<div style="font-size:2rem;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));">🏁</div>',
-            iconSize: [36, 36],
-            iconAnchor: [18, 36],
+            html: '<div style="width:40px;height:40px;border-radius:50%;background:var(--q-positive);display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 3px 10px rgba(0,0,0,0.4);border:3px solid #fff;">🏁</div>',
+            iconSize: [40, 40],
+            iconAnchor: [20, 20],
           })
           const retMarker = L.marker([retLat, retLng], { icon: flagIcon })
             .bindPopup(`<div style="text-align:center;"><b>🏁 ${t('returnPoint')}</b><br><span style="font-size:12px;">${t('headBackToStart')}</span></div>`)
@@ -344,13 +344,9 @@ const fetchEvent = async () => {
         })
       }
 
-      // Gold user marker when finished
+      // Keep user marker always blue
       if (userMarker.value) {
-        if (nowDone) {
-          userMarker.value.setStyle({ color: '#f9a825', fillColor: '#fdd835', fillOpacity: 1 })
-        } else {
-          userMarker.value.setStyle({ color: '#6c3fc4', fillColor: '#8e5add', fillOpacity: 0.9 })
-        }
+        userMarker.value.setStyle({ color: '#6c3fc4', fillColor: '#8e5add', fillOpacity: 0.9 })
       }
 
       // Keep GPS dot on top of checkpoint markers

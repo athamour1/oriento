@@ -53,7 +53,9 @@
           :color="teamColor(team.id)"
           @click="toggleTeam(team.id)"
           class="q-px-sm"
-        />
+        >
+          <q-tooltip>{{ $t('showRouteTooltip') }}</q-tooltip>
+        </q-btn>
         <q-btn
           v-if="selectedTeamId !== null"
           flat dense round icon="close" size="sm" color="grey-7"
@@ -61,6 +63,16 @@
         >
           <q-tooltip>{{ $t('showAllTeams') }}</q-tooltip>
         </q-btn>
+      </div>
+
+      <!-- Route hint -->
+      <div v-if="selectedTeamId === null && allTeams.length > 0" class="text-caption text-grey-6 q-mb-sm row items-center q-gutter-xs">
+        <q-icon name="info" size="14px" />
+        <span>{{ $t('routeHint') }}</span>
+      </div>
+      <div v-if="selectedTeamId !== null" class="text-caption text-grey-7 q-mb-sm row items-center q-gutter-xs">
+        <q-icon name="route" size="14px" :color="teamColor(selectedTeamId)" />
+        <span>{{ $t('viewingRouteFor', { team: allTeams.find(t => t.id === selectedTeamId)?.username }) }}</span>
       </div>
 
       <div v-if="filteredLogs.length === 0" class="text-center text-grey-7 q-py-xl">

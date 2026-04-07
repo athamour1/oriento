@@ -29,7 +29,7 @@
     </q-card>
 
     <!-- New Event Modal -->
-    <q-dialog v-model="showNewEventDialog">
+    <q-dialog v-model="showNewEventDialog" :content-style="{ borderRadius: '20px', overflow: 'hidden' }">
       <q-card style="min-width: 420px; width: 95vw; max-width: 560px; border-radius: 20px;" class="q-pa-sm">
         <q-card-section>
           <div class="text-h6 text-weight-bold tracking-tight">{{ $t('createEventTitle') }}</div>

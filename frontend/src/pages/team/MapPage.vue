@@ -80,6 +80,8 @@ import { onMounted, ref, onUnmounted, watch } from 'vue'
 import { api } from 'boot/axios'
 import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
+import { useTeamEventStore } from 'src/stores/teamEvent'
+const teamEventStore = useTeamEventStore()
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
@@ -326,10 +328,10 @@ const fetchEvent = async () => {
       const nowDone = totalCps > 0 && scannedCount >= totalCps
 
       if (nowDone && !allDone.value) {
-        // Just completed — reset dismiss so banner shows
         bannerDismissed.value = false
       }
       allDone.value = nowDone
+      teamEventStore.allDone = nowDone
 
       // Gold user marker when finished
       if (userMarker.value) {

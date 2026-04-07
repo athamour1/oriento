@@ -30,7 +30,7 @@
 
     <!-- New Event Modal -->
     <q-dialog v-model="showNewEventDialog">
-      <q-card style="min-width: 420px; width: 95vw; max-width: 560px;" class="q-pa-sm">
+      <q-card style="min-width: 420px; width: 95vw; max-width: 560px; border-radius: 20px;" class="q-pa-sm">
         <q-card-section>
           <div class="text-h6 text-weight-bold tracking-tight">{{ $t('createEventTitle') }}</div>
           <div class="text-caption text-grey-7">{{ $t('defineParameters') }}</div>

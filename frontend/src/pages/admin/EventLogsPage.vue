@@ -1,7 +1,6 @@
 <template>
   <q-page class="q-pa-lg admin-page">
     <div class="row items-center q-mb-xl">
-      <q-btn flat round icon="arrow_back" color="grey-8" @click="$router.back()" class="q-mr-sm" />
       <div class="text-h5 text-weight-bold tracking-tight">{{ $t('liveActivityFeed') }}</div>
       <q-space />
       <q-btn flat round color="primary" icon="refresh" @click="fetchAll" :loading="loading" />

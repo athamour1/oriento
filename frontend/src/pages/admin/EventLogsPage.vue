@@ -476,8 +476,3 @@ onUnmounted(() => {
 }
 </style>
 
-<style>
-.layer-menu { border-radius: 14px !important; overflow: hidden; }
-.layer-item { border-radius: 8px; margin-bottom: 2px; transition: background 0.15s; }
-.layer-item--active { background: rgba(25, 118, 210, 0.12); color: #1976d2; font-weight: 700; }
-</style>

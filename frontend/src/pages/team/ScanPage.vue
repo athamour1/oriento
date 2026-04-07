@@ -8,8 +8,6 @@
         <div class="text-h6">{{ $t('cameraAccessError') }}</div>
       </div>
 
-      <!-- Overlay: corner frame -->
-      <div class="scan-frame" />
     </div>
 
     <!-- Bottom status bar -->
@@ -101,9 +99,12 @@ const onError = () => {
 .scan-page {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  height: 100%;
+  max-height: 100dvh;
   background: #000;
   overflow: hidden;
+  position: fixed;
+  inset: 0;
 }
 
 .camera-area {
@@ -139,46 +140,6 @@ const onError = () => {
   background: #111;
 }
 
-/* Corner-bracket scan frame */
-.scan-frame {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -55%);
-  width: min(70vw, 260px);
-  height: min(70vw, 260px);
-  border-radius: 12px;
-  pointer-events: none;
-}
-.scan-frame::before,
-.scan-frame::after,
-.scan-frame > *,
-.scan-frame {
-  box-sizing: border-box;
-}
-.scan-frame::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border: 3px solid rgba(255,255,255,0.15);
-  border-radius: 12px;
-}
-/* Four corner brackets via box-shadow trick */
-.scan-frame::after {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  border-radius: 14px;
-  background:
-    linear-gradient(white, white) top    left  / 24px 3px no-repeat,
-    linear-gradient(white, white) top    left  / 3px 24px no-repeat,
-    linear-gradient(white, white) top    right / 24px 3px no-repeat,
-    linear-gradient(white, white) top    right / 3px 24px no-repeat,
-    linear-gradient(white, white) bottom left  / 24px 3px no-repeat,
-    linear-gradient(white, white) bottom left  / 3px 24px no-repeat,
-    linear-gradient(white, white) bottom right / 24px 3px no-repeat,
-    linear-gradient(white, white) bottom right / 3px 24px no-repeat;
-}
 
 /* Bottom status area */
 .status-bar {

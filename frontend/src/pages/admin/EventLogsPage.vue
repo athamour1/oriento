@@ -107,6 +107,7 @@ import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { AntPath } from 'leaflet-ant-path'
 import { useEventSocket } from 'src/composables/useEventSocket'
 
 const route = useRoute()
@@ -210,7 +211,7 @@ async function renderRoute() {
     const color = teamHex(selectedTeamId.value)
 
     if (latlngs.length >= 2) {
-      activePolyline = L.polyline(latlngs, { color, weight: 3, opacity: 0.75, dashArray: '6 4' })
+      activePolyline = new AntPath(latlngs, { color, weight: 3, opacity: 0.75, delay: 800, dashArray: [10, 20], pulseColor: '#fff' })
       routeLayer.addLayer(activePolyline)
       L.circleMarker(latlngs[0], { radius: 6, color, fillColor: '#fff', fillOpacity: 1, weight: 2 })
         .bindTooltip('▶ Start', { permanent: false }).addTo(routeLayer)
@@ -236,7 +237,7 @@ function extendRoute(teamId, latitude, longitude) {
     // (latestMarker holds the previous single point if any)
     if (latestMarker) {
       const prev = latestMarker.getLatLng()
-      activePolyline = L.polyline([prev, latlng], { color, weight: 3, opacity: 0.75, dashArray: '6 4' })
+      activePolyline = new AntPath([prev, latlng], { color, weight: 3, opacity: 0.75, delay: 800, dashArray: [10, 20], pulseColor: '#fff' })
       routeLayer.addLayer(activePolyline)
       // Retroactively add start marker
       L.circleMarker(prev, { radius: 6, color, fillColor: '#fff', fillOpacity: 1, weight: 2 })

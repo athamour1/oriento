@@ -53,6 +53,18 @@ export class ScansService {
 
     const result = { ...scan, isFirst, bonusAwarded: isFirst ? checkpoint.bonusForFirst : 0 };
 
+    // 6. Check if this team just finished all checkpoints first
+    if (checkpoint.event.firstFinishBonus > 0 && !checkpoint.event.firstFinishBonusAwardedToId) {
+      const totalCheckpoints = await this.prisma.checkpoint.count({ where: { eventId: checkpoint.eventId } });
+      const teamScans = await this.prisma.scan.count({ where: { teamId, checkpoint: { eventId: checkpoint.eventId } } });
+      if (teamScans >= totalCheckpoints) {
+        await this.prisma.event.update({
+          where: { id: checkpoint.eventId },
+          data: { firstFinishBonusAwardedToId: teamId },
+        });
+      }
+    }
+
     // Emit real-time event to all clients watching this event
     const [team, updatedCheckpoints, teamCount] = await Promise.all([
       this.prisma.user.findUnique({ where: { id: teamId }, select: { username: true } }),

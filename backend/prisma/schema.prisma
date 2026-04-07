@@ -35,6 +35,8 @@ model Event {
   isActive          Boolean      @default(false)
   showTeamLocation  Boolean      @default(true)
   language          String       @default("en-US")
+  firstFinishBonus  Int          @default(0)
+  firstFinishBonusAwardedToId Int?
 
   checkpoints Checkpoint[]
   teams       User[]

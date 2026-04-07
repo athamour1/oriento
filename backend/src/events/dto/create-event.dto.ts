@@ -1,4 +1,4 @@
-import { IsString, IsBoolean, IsOptional, MaxLength, IsDateString, IsIn } from 'class-validator';
+import { IsString, IsBoolean, IsOptional, MaxLength, IsDateString, IsIn, IsInt, Min } from 'class-validator';
 
 export class CreateEventDto {
   @IsString()
@@ -30,4 +30,9 @@ export class CreateEventDto {
   @IsString()
   @IsIn(['en-US', 'el'])
   language?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  firstFinishBonus?: number;
 }

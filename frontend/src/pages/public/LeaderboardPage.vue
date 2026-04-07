@@ -4,8 +4,8 @@
       <div class="main-card q-pa-md shadow-up-10 rounded-borders">
         <div class="text-center q-mb-md">
           <q-icon name="emoji_events" size="3rem" color="warning" />
-          <h4 class="text-h5 text-weight-bold text-white q-mt-sm q-mb-none tracking-tight">{{ $t('liveLeaderboard') }}</h4>
-          <p class="text-subtitle2 text-white opacity-80">{{ $t('updatedRealtime') }}</p>
+          <h4 class="text-h5 text-weight-bold card-title q-mt-sm q-mb-none tracking-tight">{{ $t('liveLeaderboard') }}</h4>
+          <p class="text-subtitle2 card-sub opacity-80">{{ $t('updatedRealtime') }}</p>
         </div>
 
         <q-list separator class="q-mt-lg">
@@ -16,7 +16,7 @@
                 </q-avatar>
              </q-item-section>
              <q-item-section>
-               <q-item-label class="text-weight-bold text-white text-subtitle1">{{ team.teamName }}</q-item-label>
+               <q-item-label class="text-weight-bold card-title text-subtitle1">{{ team.teamName }}</q-item-label>
              </q-item-section>
              <q-item-section side>
                <q-chip color="primary" text-color="white" class="text-weight-bold text-subtitle1" icon="star">
@@ -25,7 +25,7 @@
              </q-item-section>
           </q-item>
         </q-list>
-        <div v-if="leaderboard.length === 0" class="text-center text-white opacity-80 q-my-xl">
+        <div v-if="leaderboard.length === 0" class="text-center card-sub opacity-80 q-my-xl">
           {{ $t('noTeamsScored') }}
         </div>
       </div>
@@ -81,6 +81,7 @@ const getBadgeColor = (index) => {
 </script>
 
 <style scoped>
+/* Dark mode (default) */
 .lb-page {
   background: linear-gradient(160deg, #150b24 0%, #2a1060 45%, #8e5add 100%);
   min-height: 100%;
@@ -90,8 +91,21 @@ const getBadgeColor = (index) => {
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 16px;
-  color: #fff;
 }
+.card-title { color: #fff; }
+.card-sub { color: rgba(255,255,255,0.85); }
+
+/* Light mode */
+body.body--light .lb-page {
+  background: linear-gradient(160deg, #f0ebff 0%, #d8c8ff 50%, #c4a0f5 100%);
+}
+body.body--light .main-card {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(142, 90, 221, 0.2);
+}
+body.body--light .card-title { color: #1e1030; }
+body.body--light .card-sub { color: #4a3070; }
+
 .opacity-80 { opacity: 0.8; }
 .max-w-sm { max-width: 500px; margin: 0 auto; }
 .tracking-tight { letter-spacing: -0.02em; }

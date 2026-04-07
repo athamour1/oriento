@@ -34,6 +34,13 @@ export class UsersService {
     });
   }
 
+  async updateTeam(id: number, username?: string, plainTextPassword?: string) {
+    const data: any = {};
+    if (username) data.username = username;
+    if (plainTextPassword) data.passwordHash = await bcrypt.hash(plainTextPassword, 10);
+    return this.prisma.user.update({ where: { id }, data, select: { id: true, username: true } });
+  }
+
   async remove(id: number) {
     return this.prisma.user.delete({ where: { id } });
   }

@@ -23,7 +23,7 @@
     <q-footer bordered :class="$q.dark.isActive ? 'bg-dark' : 'bg-white'" class="shadow-up-2">
       <q-tabs no-caps active-color="primary" indicator-color="transparent" align="justify" class="text-grey-7" v-model="tab">
         <q-route-tab name="map" icon="map" :label="$t('map')" to="/team/map" exact />
-        <q-route-tab name="scan" icon="qr_code_scanner" :label="$t('scanner')" to="/team/scan" exact />
+        <q-route-tab v-if="!teamEventStore.allDone" name="scan" icon="qr_code_scanner" :label="$t('scanner')" to="/team/scan" exact />
         <q-route-tab name="leaderboard" icon="leaderboard" :label="$t('leaderboard')" to="/team/leaderboard" exact />
       </q-tabs>
     </q-footer>
@@ -36,6 +36,8 @@ import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { api } from 'boot/axios'
 import { usePwaInstall } from 'src/composables/usePwaInstall'
+import { useTeamEventStore } from 'src/stores/teamEvent'
+const teamEventStore = useTeamEventStore()
 
 const $q = useQuasar()
 const router = useRouter()

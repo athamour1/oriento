@@ -1,10 +1,6 @@
 <template>
   <div class="public-lb-page relative-position">
-    <div class="absolute-top-right q-pa-sm z-top">
-      <LanguageSwitcher />
-    </div>
-
-    <!-- Header -->
+      <!-- Header -->
     <div class="lb-header">
       <div class="lb-icon">🏆</div>
       <h1 class="lb-title">{{ eventName }}</h1>
@@ -55,7 +51,6 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { api } from 'boot/axios'
-import LanguageSwitcher from 'components/LanguageSwitcher.vue'
 import { useEventSocket } from 'src/composables/useEventSocket'
 
 const route = useRoute()

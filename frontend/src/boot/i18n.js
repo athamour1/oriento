@@ -1,7 +1,6 @@
 import { createI18n } from 'vue-i18n'
 import enUS from '../i18n/en-US'
 import el from '../i18n/el'
-import { api } from './axios'
 
 const messages = {
   'en-US': enUS,
@@ -9,18 +8,8 @@ const messages = {
 }
 
 export default async ({ app }) => {
-  // First, check local storage
-  let defaultLang = localStorage.getItem('appLang')
-  
-  if (!defaultLang) {
-    // If none established, fetch default from backend
-    try {
-      const res = await api.get('/config')
-      defaultLang = res.data.defaultLanguage
-    } catch {
-      defaultLang = 'en-US'
-    }
-  }
+  // Use whatever the admin last saved, defaulting to English
+  const defaultLang = localStorage.getItem('appLang') || 'en-US'
 
   // Create I18n instance
   const i18n = createI18n({

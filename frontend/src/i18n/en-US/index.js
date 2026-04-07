@@ -131,5 +131,6 @@ export default {
   failedToSync: 'Failed to synchronize with server.',
   failedToLoadSettings: 'Failed to load settings.',
   settingsSaved: 'Event settings saved successfully.',
-  failedToSaveSettings: 'Failed to save settings.'
+  failedToSaveSettings: 'Failed to save settings.',
+  notScannedYet: 'Not scanned yet'
 }

@@ -131,5 +131,6 @@ export default {
   failedToSync: 'Αποτυχία συγχρονισμού με τον διακομιστή.',
   failedToLoadSettings: 'Αποτυχία φόρτωσης ρυθμίσεων.',
   settingsSaved: 'Οι ρυθμίσεις αποθηκεύτηκαν επιτυχώς.',
-  failedToSaveSettings: 'Αποτυχία αποθήκευσης ρυθμίσεων.'
+  failedToSaveSettings: 'Αποτυχία αποθήκευσης ρυθμίσεων.',
+  notScannedYet: 'Δεν έχει σαρωθεί ακόμα'
 }

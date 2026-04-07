@@ -101,8 +101,8 @@ onMounted(async () => {
       if (!userMarker.value) {
         // Draw the user physically on the map
         userMarker.value = L.circleMarker([latitude, longitude], {
-          color: '#21ba45', fillColor: '#21ba45', fillOpacity: 0.8, radius: 8
-        }).bindPopup('<b>' + t('yourTeam') + '</b>').addTo(map.value)
+          color: '#1565c0', fillColor: '#1e88e5', fillOpacity: 0.9, radius: 10, weight: 3
+        }).bindPopup('<b>📍 ' + t('yourTeam') + '</b>').addTo(map.value)
         
         // Only force camera focus if absolutely no checkpoints exist
         if (markers.value.length === 0) {
@@ -155,17 +155,20 @@ const fetchEvent = async () => {
       activeEvent.value.checkpoints.forEach(cp => {
         const isScanned = activeEvent.value.scannedCheckpointIds?.includes(cp.id)
         
+        const color = isScanned ? '#43a047' : '#e53935'
         const marker = L.circleMarker([cp.latitude, cp.longitude], {
-          radius: 10,
+          radius: 11,
           weight: 3,
-          color: isScanned ? '#9e9e9e' : '#d32f2f',
-          fillColor: isScanned ? '#bdbdbd' : '#f44336',
-          fillOpacity: isScanned ? 0.3 : 0.8
+          color: isScanned ? '#2e7d32' : '#b71c1c',
+          fillColor: color,
+          fillOpacity: 0.85,
         }).bindPopup(`
-          <div class="text-center">
+          <div style="text-align:center;min-width:120px;">
             <b>${cp.name}</b><br>
-            <span class="text-caption">${t('rewardPts', { points: cp.pointValue })}</span><br>
-            ${isScanned ? '<q-badge color="positive" class="q-mt-sm">' + t('acquired') + '</q-badge>' : ''}
+            <span style="font-size:12px;">${t('rewardPts', { points: cp.pointValue })}</span><br>
+            <span style="font-size:12px;font-weight:bold;color:${color};">
+              ${isScanned ? '✓ ' + t('acquired') : '✗ ' + t('notScannedYet')}
+            </span>
           </div>
         `).addTo(map.value)
         
@@ -185,8 +188,11 @@ const fetchEvent = async () => {
 
       // Gold user marker when finished
       if (userMarker.value) {
-        const doneColor = nowDone ? '#ffd600' : '#21ba45'
-        userMarker.value.setStyle({ color: doneColor, fillColor: doneColor })
+        if (nowDone) {
+          userMarker.value.setStyle({ color: '#f9a825', fillColor: '#fdd835', fillOpacity: 1 })
+        } else {
+          userMarker.value.setStyle({ color: '#1565c0', fillColor: '#1e88e5', fillOpacity: 0.9 })
+        }
       }
 
       if (!initialMapFit) {

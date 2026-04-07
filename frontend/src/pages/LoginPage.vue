@@ -5,7 +5,7 @@
     </div>
     <div class="main-card q-pa-xl shadow-up-10 rounded-borders">
       <div class="text-center q-mb-lg">
-        <h3 class="text-h4 text-weight-bold tracking-tight branded-title q-my-none">Oriento</h3>
+        <h3 class="text-h4 text-weight-bold tracking-tight branded-title q-my-none">🧭 Oriento</h3>
         <p class="text-subtitle1 text-grey-8 opacity-80 current-status q-mt-sm">{{ $t('targetAndNavigate') }}</p>
       </div>
 

@@ -2,7 +2,7 @@
   <q-layout view="hHh Lpr fFf">
     <q-header elevated class="bg-primary text-white">
       <q-toolbar>
-        <q-toolbar-title class="text-weight-bold tracking-tight">Oriento</q-toolbar-title>
+        <q-toolbar-title class="text-weight-bold tracking-tight">🧭 Oriento</q-toolbar-title>
         <LanguageSwitcher />
         <q-btn v-if="isInstallable" flat dense round icon="download" @click="promptInstall">
           <q-tooltip>{{ $t('installApp') }}</q-tooltip>

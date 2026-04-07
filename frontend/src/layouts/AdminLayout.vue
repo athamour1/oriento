@@ -4,7 +4,7 @@
       <q-toolbar>
         <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
         <q-toolbar-title class="text-weight-bold tracking-tight">
-          {{ $t('adminDashboard') }}
+          🧭 {{ $t('adminDashboard') }}
         </q-toolbar-title>
         <LanguageSwitcher />
         <q-btn v-if="isInstallable" flat dense round icon="download" @click="promptInstall">

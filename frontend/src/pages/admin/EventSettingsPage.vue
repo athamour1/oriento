@@ -1,7 +1,6 @@
 <template>
   <q-page class="q-pa-lg admin-page max-w-md mx-auto">
     <div class="row items-center q-mb-xl">
-      <q-btn flat round icon="arrow_back" color="grey-8" @click="$router.back()" class="q-mr-sm" />
       <div class="text-h5 text-weight-bold tracking-tight">{{ $t('eventSettings') }}</div>
     </div>
 

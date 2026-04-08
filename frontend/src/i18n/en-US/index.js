@@ -178,5 +178,12 @@ export default {
   overlays: 'Overlays',
   showRouteTooltip: 'Click to filter & show this team\'s GPS route on the map',
   routeHint: 'Click a team button to filter the feed and show their GPS route history on the map',
-  viewingRouteFor: 'Showing GPS route for: {team}'
+  viewingRouteFor: 'Showing GPS route for: {team}',
+  profileSettings: 'Profile Settings',
+  changePassword: 'Change Password',
+  currentPassword: 'Current Password',
+  passwordChanged: 'Password changed successfully',
+  currentPasswordWrong: 'Current password is incorrect',
+  passwordTooShort: 'Password must be at least 4 characters',
+  timeUp: "Time's Up!"
 }

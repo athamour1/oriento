@@ -178,5 +178,12 @@ export default {
   overlays: 'Επίπεδα',
   showRouteTooltip: 'Κλικ για φιλτράρισμα & εμφάνιση διαδρομής GPS στον χάρτη',
   routeHint: 'Κλικ σε κουμπί ομάδας για φιλτράρισμα και εμφάνιση ιστορικού διαδρομής GPS στον χάρτη',
-  viewingRouteFor: 'Εμφάνιση διαδρομής GPS για: {team}'
+  viewingRouteFor: 'Εμφάνιση διαδρομής GPS για: {team}',
+  profileSettings: 'Ρυθμίσεις Προφίλ',
+  changePassword: 'Αλλαγή Κωδικού',
+  currentPassword: 'Τρέχων Κωδικός',
+  passwordChanged: 'Ο κωδικός άλλαξε επιτυχώς',
+  currentPasswordWrong: 'Ο τρέχων κωδικός είναι λανθασμένος',
+  passwordTooShort: 'Ο κωδικός πρέπει να έχει τουλάχιστον 4 χαρακτήρες',
+  timeUp: 'Ο χρόνος τελείωσε!'
 }

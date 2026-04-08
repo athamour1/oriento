@@ -1,7 +1,7 @@
 <template>
   <q-page class="flex flex-center lb-page">
     <div class="full-width max-w-sm q-pa-md">
-      <div class="main-card q-pa-md shadow-up-10 rounded-borders">
+      <div class="main-card q-pa-md rounded-borders">
         <div class="text-center q-mb-md">
           <q-icon name="emoji_events" size="3rem" color="warning" />
           <h4 class="text-h5 text-weight-bold card-title q-mt-sm q-mb-none tracking-tight">{{ $t('liveLeaderboard') }}</h4>
@@ -87,10 +87,10 @@ const getBadgeColor = (index) => {
   min-height: 100%;
 }
 .main-card {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
+  box-shadow: none;
 }
 .card-title { color: #fff; }
 .card-sub { color: rgba(255,255,255,0.85); }

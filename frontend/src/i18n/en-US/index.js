@@ -162,7 +162,7 @@ export default {
   bonusPoints: 'Bonus Points',
   startTime: 'Start Time',
   endTime: 'End Time',
-  showTeamLocation: 'Allow teams to share their GPS location',
+  showTeamLocation: 'Allow teams to see their GPS location',
   showDirectionArrow: 'Show direction arrow on team marker',
   showDirectionArrowDesc: 'Shows a subtle compass arrow so teams can see which way they\'re facing',
   filterByTeam: 'Filter by team',
@@ -192,5 +192,6 @@ export default {
   cameraRequired: 'Camera Access Required',
   cameraPermissionDenied: 'You denied camera access. This app needs the camera to scan QR codes.',
   cameraEnableHint: 'Tap the lock icon in your browser\'s address bar, allow Camera access, then retry.',
-  retryCamera: 'Retry Camera Access'
+  retryCamera: 'Retry Camera Access',
+  backToMap: 'Back to Map'
 }

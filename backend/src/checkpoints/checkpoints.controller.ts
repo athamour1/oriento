@@ -57,7 +57,7 @@ export class CheckpointsController {
       return res.status(404).send('Checkpoint not found');
     }
     const baseUrl = process.env.FRONTEND_URL;
-    const deepLinkUrl = `${baseUrl}/#/team/scan?qr=${checkpoint.qrSecretString}`;
+    const deepLinkUrl = `${baseUrl}/team/scan?qr=${checkpoint.qrSecretString}`;
     const qrDataUrl = await QRCode.toDataURL(deepLinkUrl);
     const base64Data = qrDataUrl.replace(/^data:image\/png;base64,/, '');
     res.setHeader('Content-Type', 'image/png');

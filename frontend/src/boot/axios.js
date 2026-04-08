@@ -26,8 +26,9 @@ api.interceptors.response.use(
   async error => {
     const original = error.config
 
-    // Skip if it's the refresh call itself failing (avoid infinite loop)
-    if (error.response?.status === 401 && !original._retry) {
+    // Skip if it's the refresh call itself or already retried (avoid infinite loop)
+    const isRefreshCall = original.url?.includes('/auth/refresh')
+    if (error.response?.status === 401 && !original._retry && !isRefreshCall) {
       if (isRefreshing) {
         // Queue subsequent 401s until refresh completes
         return new Promise((resolve, reject) => {

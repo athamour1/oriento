@@ -185,5 +185,6 @@ export default {
   passwordChanged: 'Ο κωδικός άλλαξε επιτυχώς',
   currentPasswordWrong: 'Ο τρέχων κωδικός είναι λανθασμένος',
   passwordTooShort: 'Ο κωδικός πρέπει να έχει τουλάχιστον 4 χαρακτήρες',
-  timeUp: 'Ο χρόνος τελείωσε!'
+  timeUp: 'Ο χρόνος τελείωσε!',
+  firstToFinish: 'Πρώτοι που τελείωσαν όλα τα σημεία!'
 }

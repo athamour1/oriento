@@ -120,10 +120,14 @@
           :key="log.id"
           :title="log.team.username"
           :subtitle="new Date(log.scannedAt).toLocaleString()"
-          icon="qr_code_scanner"
-          :color="teamColor(log.team.id)"
+          :icon="log._firstFinish ? 'emoji_events' : 'qr_code_scanner'"
+          :color="log._firstFinish ? 'warning' : teamColor(log.team.id)"
         >
-          <div>
+          <div v-if="log._firstFinish">
+            🏆 {{ $t('firstToFinish') }}
+            <q-badge color="warning" text-color="dark" class="q-ml-xs">+{{ log.bonus }} {{ $t('pts') }}</q-badge>
+          </div>
+          <div v-else>
             {{ $t('captured') }} <b>{{ log.checkpoint.name }}</b>
             <q-badge color="positive" class="q-ml-xs">+{{ log.checkpoint.pointValue + (log.bonusAwarded || 0) }} {{ $t('pts') }}</q-badge>
             <q-badge v-if="log.bonusAwarded" color="warning" class="q-ml-xs">🥇 +{{ log.bonusAwarded }}</q-badge>
@@ -446,6 +450,16 @@ onMounted(async () => {
     if (!allTeams.value.find(t => t.id === payload.teamId)) {
       allTeams.value.push({ id: payload.teamId, username: payload.teamUsername })
     }
+  })
+
+  socket.on('first:finish', (payload) => {
+    logs.value.unshift({
+      id: `ff-${Date.now()}`,
+      _firstFinish: true,
+      team: { id: payload.teamId, username: payload.teamUsername },
+      bonus: payload.bonus,
+      scannedAt: payload.finishedAt,
+    })
   })
 
   socket.on('stats:updated', (payload) => {

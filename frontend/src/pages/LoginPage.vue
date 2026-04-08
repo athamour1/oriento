@@ -163,8 +163,14 @@ body.body--dark .main-card {
   left: 50%;
   transform: translateX(-50%);
   font-size: 1rem;
-  color: var(--q-primary);
+  color: #fff;
+  opacity: 0.5;
   letter-spacing: 0.05em;
   pointer-events: none;
+}
+
+body.body--light .app-version {
+  color: var(--q-primary);
+  opacity: 0.7;
 }
 </style>

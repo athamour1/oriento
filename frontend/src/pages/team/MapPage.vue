@@ -7,9 +7,9 @@
       <div v-if="allDone && !bannerDismissed" class="completion-banner">
         <div class="banner-inner">
           <div class="banner-left">
-            <span class="trophy">🏁</span>
+            <span class="trophy">{{ timeExpired ? '⏰' : '🏁' }}</span>
             <div>
-              <div class="banner-title">{{ $t('allCheckpointsDone') }}</div>
+              <div class="banner-title">{{ timeExpired ? $t('timeUp') : $t('allCheckpointsDone') }}</div>
               <div class="banner-sub">{{ $t('followReturnPoint') }}</div>
             </div>
           </div>
@@ -76,7 +76,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, onUnmounted } from 'vue'
+import { onMounted, ref, onUnmounted, watch } from 'vue'
 import { api } from 'boot/axios'
 import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
@@ -98,6 +98,7 @@ const markers = ref([])
 const activeEvent = ref(null)
 const userMarker = ref(null)
 const allDone = ref(false)
+const timeExpired = ref(false)
 const bannerDismissed = ref(false)
 const gpsBlocked = ref(false)
 const gpsPermissionDenied = ref(false)
@@ -118,6 +119,7 @@ function switchBase(layer) {
 }
 let watchId = null
 let eventInterval = null
+let endTimeTimeout = null
 let initialMapFit = false
 let lastSentLat = null
 let lastSentLng = null
@@ -263,6 +265,7 @@ onUnmounted(() => {
     navigator.geolocation.clearWatch(watchId)
   }
   if (eventInterval) clearInterval(eventInterval)
+  if (endTimeTimeout) clearTimeout(endTimeTimeout)
   locationSocket?.disconnect()
 })
 
@@ -270,6 +273,8 @@ const fetchEvent = async () => {
   try {
     const res = await api.get('/team/events/active')
     activeEvent.value = res.data
+    teamEventStore.startTime = res.data?.startTime ?? null
+    teamEventStore.endTime = res.data?.endTime ?? null
 
     // Apply language set by the admin for this event
     if (res.data?.language) {
@@ -294,7 +299,9 @@ const fetchEvent = async () => {
       // ── Completion detection ──────────────────────────────────────────────
       const totalCps = activeEvent.value.checkpoints.length
       const scannedCount = activeEvent.value.scannedCheckpointIds?.length ?? 0
-      const nowDone = totalCps > 0 && scannedCount >= totalCps
+      const eventExpired = !!(activeEvent.value.endTime && Date.now() > new Date(activeEvent.value.endTime).getTime())
+      const nowDone = (totalCps > 0 && scannedCount >= totalCps) || eventExpired
+      timeExpired.value = eventExpired && scannedCount < totalCps
 
       if (nowDone && !allDone.value) {
         bannerDismissed.value = false
@@ -365,6 +372,19 @@ const fetchEvent = async () => {
     console.error(err)
   }
 }
+
+// When endTime is set/changed, schedule a one-shot fetchEvent to fire exactly
+// when the timer expires so the map switches to "done" state immediately.
+watch(() => teamEventStore.endTime, (val) => {
+  if (endTimeTimeout) clearTimeout(endTimeTimeout)
+  if (!val) return
+  const ms = new Date(val).getTime() - Date.now()
+  if (ms > 0) {
+    endTimeTimeout = setTimeout(() => fetchEvent(), ms + 1000)
+  } else {
+    fetchEvent()
+  }
+}, { immediate: true })
 </script>
 
 <style scoped>

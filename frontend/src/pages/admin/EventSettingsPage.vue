@@ -37,7 +37,7 @@
           color="primary"
           size="lg"
         />
-        <div class="text-caption text-grey-7" style="padding-left:56px;margin-top:-6px;">{{ $t('showDirectionArrowDesc') }}</div>
+        <div class="text-caption text-grey-7 q-mb-xs" style="padding-left:56px;margin-top:-10px;">{{ $t('showDirectionArrowDesc') }}</div>
 
         <q-separator class="q-my-sm" />
 

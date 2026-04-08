@@ -186,5 +186,9 @@ export default {
   currentPasswordWrong: 'Current password is incorrect',
   passwordTooShort: 'Password must be at least 4 characters',
   timeUp: "Time's Up!",
-  firstToFinish: 'First to finish all checkpoints!'
+  firstToFinish: 'First to finish all checkpoints!',
+  cameraRequired: 'Camera Access Required',
+  cameraPermissionDenied: 'You denied camera access. This app needs the camera to scan QR codes.',
+  cameraEnableHint: 'Tap the lock icon in your browser\'s address bar, allow Camera access, then retry.',
+  retryCamera: 'Retry Camera Access'
 }

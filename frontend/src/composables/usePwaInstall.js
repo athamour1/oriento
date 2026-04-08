@@ -1,5 +1,5 @@
 import { ref, computed, h } from 'vue'
-import { useQuasar, QCard, QCardSection, QBtn, QIcon } from 'quasar'
+import { useQuasar } from 'quasar'
 
 const deferredPrompt = ref(null)
 const autoPromptSuppressed = ref(localStorage.getItem('pwaPromptDismissed') === 'true')

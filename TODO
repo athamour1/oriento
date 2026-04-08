@@ -39,12 +39,49 @@
 - [X] fix the activity feed to filter the teams shown also let the amdin to choose to show the route a team took
 - [X] Convert realtime from polling to websockets
 - [X] Fix camera for teams view it seems to not scale correctly and have blannk sections
-- [ ] the favicon even if it seems to be correct its too small
+- [X] the favicon even if it seems to be correct its too small
 - [X] for i 18n remove the option and make it so the admin can chnage this only
 - [X] on teams map center to the points only when the page is loded or the event starts after that center on the current location 
 - [X] change the layers menu on maps make it to feel part of the app
 - [X] change the card of the finished allow me to close it because i cant also make it maybe a banner on top of the footer
 - [X] remove all notifications for admin and teams and keep only the notification for the checkpoint scaned if i have scaned it again show a diferent notifications and move it on the top right under the header
 - [X] Add a locator button for teams to zoom onto their location right bottom of the map
-- [ ] live activity feed should display live only when the sokcet is working corectly
+- [X] live activity feed should display live only when the sokcet is working corectly
 - [X] the app should have gps make it so if a user presses no for the share of their location to show a page that will retry to enalbe it
+- [X] Change the colors palete
+- [X] make the background color gradient for leaderboards and login
+- [X] add dark mode button for public leaderbord and login page on the top right
+- [X] make the creation of the event dynamicly also on the frontend so i dont have to refresh to see the newlly created event so when the event is successfully created then commit to pinia the newlly created object
+- [X] remove the back button on all admin pages
+- [X] add the setting the option to the event to when a team finishes first to gain some more points and add it on to the settings event 
+- [X] on create new event card add all the options for the event
+- [X] add keep me loged in option on login and create the logic
+- [X] add on password input on login page the show password button on the input
+- [X] fix the padding for the event timer please on event settings page
+- [X] if the timer is enabled show it for the teams somehow and the public leaderboard
+- [ ] create a landing page for this project on github pages
+- [X] change the map zoom buttons to ditached round ones
+- [X] also add the layer button from teams to checkpoints adminm page
+- [X] allow admin to edit a point in the dialog open a small map like the one above to change the location of a point and all the other parameters
+- [X] let the admin update a point from the map by draging a point and when the amdin let it down then save it to the backend
+- [X] remove login successfully notification from everywhere and list all the notifications left on the app 
+- [X] make the layer selection button for teams elevated 
+- [X] make the gps point for teams to be on the top of the other points\
+- [X] save on localstorage the layer option for teams and admins
+- [X] when all points are scaned hide the scanner button on teams footer navigator
+- [X] add a staring point for the event and a return point or check a togle for it to be the same
+- [X] when all points are scaned hide the poitns and show only the return point
+- [X] make the teams leaderboard follow the dark mode
+- [X] when create a new user check if the username is taken it sohuld be unique across all events 
+- [X] allow admin to edit a team name and password
+- [X] add for admin for team creation or edit the passwrod unhide button
+- [X] change from hash mode to history for router
+- [X] when a qr is scaned from a team check in the backend if this point is from the event the team is registerd if not already
+- [X] when dark mode enabled dont change the prefered layer
+- [X] add on table with checkpoints add a column with the points first scan
+- [X] add a togle to enable the first scan award points
+- [X] when i jump from event to event and the same page it doesnt load the data for the other event lets say i am on Team Management for event 2 and i go to Team Management for event 1
+- [X] what about gmt ? (i think is ok)
+- [X] fix the public leaderboard link it has the hash
+- [X] admins profile settings for password and language
+- [X] on Live Activity Feed page show the points each team got from the scanning this isnt every time 10 poitns it may be very if the first scan has deferent points

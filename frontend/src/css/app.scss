@@ -1,4 +1,5 @@
 // app global css in SCSS form
+@use 'sass:color';
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 // ── Global typography ───────────────────────────────────────────────────────
@@ -9,18 +10,18 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #f5f3ff;
-  color: darken($dark, 5%);
+  color: color.adjust($dark, $lightness: -5%);
 }
 
 // ── Dark mode base ──────────────────────────────────────────────────────────
 body.body--dark {
   background-color: $dark-page;
-  color: lighten($accent, 20%);
+  color: color.adjust($accent, $lightness: 20%);
 }
 
 // Cards
 .body--dark .q-card {
-  background-color: lighten($dark, 5%) !important;
+  background-color: color.adjust($dark, $lightness: 5%) !important;
   border-color: rgba($primary, 0.18) !important;
 }
 
@@ -48,7 +49,7 @@ body.body--dark {
 
 // Input fields
 .body--dark .q-field__control {
-  background-color: lighten($dark, 5%) !important;
+  background-color: color.adjust($dark, $lightness: 5%) !important;
 }
 
 // ── Smooth transitions ───────────────────────────────────────────────────────

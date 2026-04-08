@@ -1,11 +1,20 @@
-import { Controller, Post, Body, Headers, HttpCode, HttpStatus, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Put, Body, Headers, HttpCode, HttpStatus, UnauthorizedException, BadRequestException, UseGuards, Request } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { RolesGuard } from './roles.guard';
+import { Roles } from './roles.decorator';
+import { Role } from '@prisma/client';
+import { UsersService } from '../users/users.service';
+import * as bcrypt from 'bcrypt';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private usersService: UsersService,
+  ) {}
 
   @Throttle({ auth: { ttl: 60000, limit: 10 } })
   @HttpCode(HttpStatus.OK)
@@ -24,5 +33,21 @@ export class AuthController {
     const token = authHeader?.replace('Bearer ', '');
     if (!token) throw new UnauthorizedException();
     return this.authService.refresh(token);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @Put('profile/password')
+  async changePassword(
+    @Request() req: any,
+    @Body() body: { currentPassword: string; newPassword: string },
+  ) {
+    const user = await this.usersService.findByUsername(req.user.username);
+    if (!user) throw new UnauthorizedException();
+    const valid = await bcrypt.compare(body.currentPassword, user.passwordHash);
+    if (!valid) throw new BadRequestException('Current password is incorrect');
+    await this.usersService.updateTeam(user.id, undefined, body.newPassword);
+    return { success: true };
   }
 }

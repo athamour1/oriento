@@ -23,6 +23,11 @@
           <q-item-section avatar><q-icon name="dashboard" /></q-item-section>
           <q-item-section>{{ $t('eventsDashboard') }}</q-item-section>
         </q-item>
+
+        <q-item clickable v-ripple to="/admin/profile" exact>
+          <q-item-section avatar><q-icon name="manage_accounts" /></q-item-section>
+          <q-item-section>{{ $t('profileSettings') }}</q-item-section>
+        </q-item>
         
         <q-separator class="q-my-md" />
         <q-item-label header>{{ $t('scavengerHunts') }}</q-item-label>

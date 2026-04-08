@@ -97,6 +97,8 @@ export class EventsService {
       select: { username: true, eventId: true },
     });
 
+    if (!user) return null;
+
     const [location] = await this.prisma.$transaction([
       this.prisma.teamLocation.upsert({
         where: { teamId: userId },

@@ -161,10 +161,10 @@ body.body--dark .main-card {
   bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 0.72rem;
-  opacity: 0.35;
+  font-size: 0.85rem;
+  opacity: 0.5;
   color: #fff;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   pointer-events: none;
 }
 </style>

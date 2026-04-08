@@ -39,18 +39,33 @@ export class EventsService {
     });
   }
 
-  getLogs(eventId: number, page = 1, limit = 50) {
+  async getLogs(eventId: number, page = 1, limit = 50) {
     const skip = (page - 1) * limit;
-    return this.prisma.scan.findMany({
-      where: { checkpoint: { eventId } },
-      include: {
-        team: { select: { id: true, username: true } },
-        checkpoint: { select: { id: true, name: true, pointValue: true } },
-      },
-      orderBy: { scannedAt: 'desc' },
-      skip,
-      take: limit,
-    });
+    const [scans, firstScans] = await Promise.all([
+      this.prisma.scan.findMany({
+        where: { checkpoint: { eventId } },
+        include: {
+          team: { select: { id: true, username: true } },
+          checkpoint: { select: { id: true, name: true, pointValue: true, bonusForFirst: true } },
+        },
+        orderBy: { scannedAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      // For each checkpoint find which team scanned it first
+      this.prisma.scan.findMany({
+        where: { checkpoint: { eventId, bonusForFirst: { gt: 0 } } },
+        orderBy: { scannedAt: 'asc' },
+        distinct: ['checkpointId'],
+        select: { id: true, checkpointId: true },
+      }),
+    ]);
+
+    const firstScanIds = new Set(firstScans.map(s => s.id));
+    return scans.map(s => ({
+      ...s,
+      bonusAwarded: firstScanIds.has(s.id) ? s.checkpoint.bonusForFirst : 0,
+    }));
   }
 
   async getStats(eventId: number) {

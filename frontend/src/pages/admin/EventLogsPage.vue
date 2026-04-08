@@ -125,7 +125,8 @@
         >
           <div>
             {{ $t('captured') }} <b>{{ log.checkpoint.name }}</b>
-            <q-badge color="positive" class="q-ml-xs">+{{ log.checkpoint.pointValue }} {{ $t('pts') }}</q-badge>
+            <q-badge color="positive" class="q-ml-xs">+{{ log.checkpoint.pointValue + (log.bonusAwarded || 0) }} {{ $t('pts') }}</q-badge>
+            <q-badge v-if="log.bonusAwarded" color="warning" class="q-ml-xs">🥇 +{{ log.bonusAwarded }}</q-badge>
           </div>
         </q-timeline-entry>
       </q-timeline>
@@ -438,6 +439,7 @@ onMounted(async () => {
       id: Date.now(),
       team: { id: payload.teamId, username: payload.teamUsername },
       checkpoint: { id: payload.checkpointId, name: payload.checkpointName, pointValue: payload.points - payload.bonusAwarded },
+      bonusAwarded: payload.bonusAwarded || 0,
       scannedAt: payload.scannedAt,
     })
     // Ensure the team is in the filter list even if they weren't registered at load time

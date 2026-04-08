@@ -5,6 +5,17 @@
 // ── Global typography ───────────────────────────────────────────────────────
 * { font-family: 'Inter', 'Roboto', sans-serif; }
 
+// ── Inner scroll — page container scrolls, not the window ───────────────────
+html, body, #q-app, .q-layout {
+  height: 100%;
+  overflow: hidden;
+}
+
+.q-page-container {
+  overflow-y: auto;
+  height: 100%;
+}
+
 // ── Light mode base ─────────────────────────────────────────────────────────
 body {
   -webkit-font-smoothing: antialiased;

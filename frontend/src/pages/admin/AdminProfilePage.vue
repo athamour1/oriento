@@ -60,7 +60,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuasar } from 'quasar'
 import { api } from 'boot/axios'
@@ -72,6 +72,13 @@ const pwd = ref({ current: '', next: '' })
 const pwdError = ref('')
 const showCurrent = ref(false)
 const showNew = ref(false)
+
+onMounted(async () => {
+  try {
+    const res = await api.get('/auth/profile')
+    if (res.data?.language) locale.value = res.data.language
+  } catch { /* non-critical */ }
+})
 
 const savePassword = async () => {
   pwdError.value = ''
@@ -91,8 +98,11 @@ const savePassword = async () => {
   }
 }
 
-const onLangChange = (val) => {
+const onLangChange = async (val) => {
   localStorage.setItem('appLang', val)
+  try {
+    await api.put('/auth/profile/language', { language: val })
+  } catch { /* non-critical */ }
 }
 </script>
 

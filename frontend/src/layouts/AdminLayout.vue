@@ -76,11 +76,13 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
+import { useI18n } from 'vue-i18n'
 import { useEventsStore } from 'src/stores/events'
 import { usePwaInstall } from 'src/composables/usePwaInstall'
 import { api } from 'boot/axios'
 
 const $q = useQuasar()
+const { locale } = useI18n()
 const leftDrawerOpen = ref(false)
 const router = useRouter()
 const store = useEventsStore()
@@ -94,8 +96,15 @@ const toggleDark = () => {
   localStorage.setItem('darkMode', $q.dark.isActive)
 }
 
-onMounted(() => {
+onMounted(async () => {
   if (!store.loaded) store.fetchEvents()
+  try {
+    const res = await api.get('/auth/profile')
+    if (res.data?.language) {
+      locale.value = res.data.language
+      localStorage.setItem('appLang', res.data.language)
+    }
+  } catch { /* non-critical */ }
 })
 
 const logout = () => {

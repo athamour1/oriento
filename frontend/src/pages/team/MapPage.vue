@@ -262,7 +262,7 @@ function makeUserIcon(deg) {
   const showArrow = activeEvent.value?.showDirectionArrow
   const rotate = deg ?? 0
   const hasHeading = deg != null
-  const arrowOpacity = hasHeading ? '1' : '0.4'
+  const arrowOpacity = hasHeading ? '1' : '0.7'
   // Arrow SVG is 24×24, dot is 16×16. Total canvas when arrow shown: 56×56
   // Dot sits at center (28,28). Arrow tip points up at 0°, rotated around dot center.
   const canvasSize = showArrow ? 56 : 22
@@ -284,7 +284,7 @@ function makeUserIcon(deg) {
                 stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                fill="#c4a0f5"
+                fill="#8d5adc"
                 opacity="${arrowOpacity}"/>
             </g>
           </g>
@@ -295,7 +295,7 @@ function makeUserIcon(deg) {
 }
 
 function updateUserMarkerIcon() {
-  if (userMarker.value && activeEvent.value?.showDirectionArrow) {
+  if (userMarker.value) {
     userMarker.value.setIcon(makeUserIcon(heading.value))
   }
 }
@@ -363,6 +363,9 @@ const fetchEvent = async () => {
       if (activeEvent.value?.showTeamLocation === false) {
         map.value?.removeLayer(userMarker.value)
         userMarker.value = null
+      } else {
+        // Refresh icon in case showDirectionArrow was toggled by admin
+        updateUserMarkerIcon()
       }
     }
 

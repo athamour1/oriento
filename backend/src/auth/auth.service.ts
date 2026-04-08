@@ -32,7 +32,10 @@ export class AuthService {
     try {
       const decoded = this.jwtService.verify(token);
       const payload = { username: decoded.username, sub: decoded.sub, role: decoded.role };
-      return { access_token: this.jwtService.sign(payload), role: decoded.role };
+      // Preserve the original expiry duration so keepLoggedIn tokens stay long-lived
+      const originalDuration = decoded.exp - decoded.iat;
+      const expiresIn = originalDuration > 24 * 60 * 60 ? '30d' : '8h';
+      return { access_token: this.jwtService.sign(payload, { expiresIn }), role: decoded.role };
     } catch {
       throw new UnauthorizedException('Token invalid or expired');
     }

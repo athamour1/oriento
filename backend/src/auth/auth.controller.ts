@@ -27,6 +27,7 @@ export class AuthController {
     return this.authService.login(user, signInDto.keepLoggedIn);
   }
 
+  @Throttle({ auth: { ttl: 60000, limit: 20 } })
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
   async refresh(@Headers('authorization') authHeader: string) {

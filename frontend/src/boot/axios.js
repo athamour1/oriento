@@ -90,8 +90,13 @@ const scheduleProactiveRefresh = () => {
 }
 
 export default defineBoot(({ app }) => {
-  // If token was stored as session-only, clear it when the browser session ends
-  if (localStorage.getItem('token') && localStorage.getItem('sessionOnly') === 'true') {
+  // If token was stored as session-only, clear it when the browser session ends.
+  // Skip this in standalone PWA mode — the OS killing the app process wipes
+  // sessionStorage, so session-only logic would log users out on every reopen.
+  const isStandalone =
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true
+  if (!isStandalone && localStorage.getItem('token') && localStorage.getItem('sessionOnly') === 'true') {
     if (!sessionStorage.getItem('sessionActive')) {
       localStorage.removeItem('token')
       localStorage.removeItem('sessionOnly')

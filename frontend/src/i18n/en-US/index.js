@@ -185,5 +185,6 @@ export default {
   passwordChanged: 'Password changed successfully',
   currentPasswordWrong: 'Current password is incorrect',
   passwordTooShort: 'Password must be at least 4 characters',
-  timeUp: "Time's Up!"
+  timeUp: "Time's Up!",
+  firstToFinish: 'First to finish all checkpoints!'
 }

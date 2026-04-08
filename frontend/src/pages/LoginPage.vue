@@ -3,7 +3,7 @@
     <q-btn
       round flat
       :icon="$q.dark.isActive ? 'light_mode' : 'dark_mode'"
-      color="white"
+      :color="$q.dark.isActive ? 'white' : 'primary'"
       class="dark-toggle"
       @click="$q.dark.toggle()"
     />
@@ -163,8 +163,7 @@ body.body--dark .main-card {
   left: 50%;
   transform: translateX(-50%);
   font-size: 1rem;
-  opacity: 0.5;
-  color: #fff;
+  color: var(--q-primary);
   letter-spacing: 0.05em;
   pointer-events: none;
 }

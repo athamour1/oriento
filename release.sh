@@ -83,6 +83,19 @@ fi
 
 echo ""
 
+# ─── Create Git tag & GitHub release ────────────────────────────────────────────
+info "Creating Git tag ${TAG}..."
+git tag -a "$TAG" -m "Release ${TAG}"
+git push origin "$TAG"
+ok "Tag ${TAG} pushed"
+
+info "Creating GitHub release..."
+gh release create "$TAG" \
+  --repo "$REPO" \
+  --title "🧭 Oriento ${TAG}" \
+  --generate-notes
+ok "GitHub release created"
+
 # ─── Login to GHCR ─────────────────────────────────────────────────────────────
 info "Logging in to ${REGISTRY}..."
 gh auth token | docker login "$REGISTRY" -u "$(gh api user -q .login)" --password-stdin
@@ -107,19 +120,6 @@ info "Pushing frontend image..."
 docker push "${FRONTEND_IMAGE}:${TAG}"
 docker push "${FRONTEND_IMAGE}:latest"
 ok "Frontend image pushed"
-
-# ─── Create Git tag & GitHub release ────────────────────────────────────────────
-info "Creating Git tag ${TAG}..."
-git tag -a "$TAG" -m "Release ${TAG}"
-git push origin "$TAG"
-ok "Tag ${TAG} pushed"
-
-info "Creating GitHub release..."
-gh release create "$TAG" \
-  --repo "$REPO" \
-  --title "🧭 Oriento ${TAG}" \
-  --generate-notes
-ok "GitHub release created"
 
 # ─── Done ───────────────────────────────────────────────────────────────────────
 echo ""

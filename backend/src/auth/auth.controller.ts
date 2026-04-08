@@ -1,4 +1,4 @@
-import { Controller, Post, Put, Body, Headers, HttpCode, HttpStatus, UnauthorizedException, BadRequestException, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Put, Get, Body, Headers, HttpCode, HttpStatus, UnauthorizedException, BadRequestException, UseGuards, Request } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -33,6 +33,26 @@ export class AuthController {
     const token = authHeader?.replace('Bearer ', '');
     if (!token) throw new UnauthorizedException();
     return this.authService.refresh(token);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Get('profile')
+  async getProfile(@Request() req: any) {
+    const user = await this.usersService.findByUsername(req.user.username);
+    if (!user) throw new UnauthorizedException();
+    return { username: user.username, language: user.language };
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @Put('profile/language')
+  async changeLanguage(@Request() req: any, @Body() body: { language: string }) {
+    const user = await this.usersService.findByUsername(req.user.username);
+    if (!user) throw new UnauthorizedException();
+    await this.usersService.updateAdminLanguage(user.id, body.language);
+    return { success: true };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

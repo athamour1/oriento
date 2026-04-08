@@ -18,6 +18,7 @@ model User {
   passwordHash String
   role         Role     @default(TEAM)
 
+  language     String   @default("en-US")
   eventId      Int?
   event        Event?   @relation(fields: [eventId], references: [id], onDelete: Cascade)
 

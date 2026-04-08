@@ -279,7 +279,6 @@ const fetchEvent = async () => {
     // Apply language set by the admin for this event
     if (res.data?.language) {
       locale.value = res.data.language
-      localStorage.setItem('appLang', res.data.language)
     }
 
     // showTeamLocation only controls visibility of the team's own dot on their map

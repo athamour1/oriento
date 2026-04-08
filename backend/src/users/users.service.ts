@@ -34,6 +34,10 @@ export class UsersService {
     });
   }
 
+  async updateAdminLanguage(id: number, language: string) {
+    return this.prisma.user.update({ where: { id }, data: { language } });
+  }
+
   async updateTeam(id: number, username?: string, plainTextPassword?: string) {
     const data: any = {};
     if (username) data.username = username;

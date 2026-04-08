@@ -22,7 +22,7 @@ export class LeaderboardService {
       }),
       this.prisma.event.findUnique({
         where: { id: eventId },
-        select: { name: true, description: true, firstFinishBonus: true, firstFinishBonusAwardedToId: true, startTime: true, endTime: true },
+        select: { name: true, description: true, firstFinishBonus: true, firstFinishBonusAwardedToId: true, startTime: true, endTime: true, language: true },
       }),
     ]);
 
@@ -60,6 +60,7 @@ export class LeaderboardService {
       eventDescription: event?.description ?? '',
       startTime: event?.startTime ?? null,
       endTime: event?.endTime ?? null,
+      language: event?.language ?? 'en-US',
       leaderboard,
     };
 

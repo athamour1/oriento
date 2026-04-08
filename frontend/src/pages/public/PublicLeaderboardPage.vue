@@ -61,11 +61,13 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
+import { useI18n } from 'vue-i18n'
 import { api } from 'boot/axios'
 import { useEventSocket } from 'src/composables/useEventSocket'
 import { useEventTimer } from 'src/composables/useEventTimer'
 
 const $q = useQuasar()
+const { locale } = useI18n()
 
 const route = useRoute()
 const eventId = route.params.eventId
@@ -86,6 +88,7 @@ const fetchLeaderboard = async () => {
     eventDescription.value = res.data.eventDescription
     startTime.value = res.data.startTime ?? null
     endTime.value = res.data.endTime ?? null
+    if (res.data.language) locale.value = res.data.language
   } catch {
     // Non-critical failure — UI shows stale data
   }

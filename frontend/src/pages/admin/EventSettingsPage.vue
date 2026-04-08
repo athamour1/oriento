@@ -53,21 +53,57 @@
           <div class="row q-col-gutter-md">
             <div class="col-12 col-sm-6">
               <q-input
-                v-model="form.startTime"
+                :model-value="form.startTime ? formatDateTime(form.startTime) : ''"
                 :label="$t('startTime')"
-                outlined
-                type="datetime-local"
-                clearable
-              />
+                outlined readonly clearable
+                @clear="form.startTime = null"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="event" class="cursor-pointer">
+                    <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                      <q-date v-model="form.startTime" mask="YYYY-MM-DDTHH:mm" today-btn>
+                        <div class="row items-center justify-end"><q-btn v-close-popup label="OK" color="primary" flat no-caps /></div>
+                      </q-date>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+                <template v-slot:append>
+                  <q-icon name="access_time" class="cursor-pointer">
+                    <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                      <q-time v-model="form.startTime" mask="YYYY-MM-DDTHH:mm" format24h>
+                        <div class="row items-center justify-end"><q-btn v-close-popup label="OK" color="primary" flat no-caps /></div>
+                      </q-time>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
             </div>
             <div class="col-12 col-sm-6">
               <q-input
-                v-model="form.endTime"
+                :model-value="form.endTime ? formatDateTime(form.endTime) : ''"
                 :label="$t('endTime')"
-                outlined
-                type="datetime-local"
-                clearable
-              />
+                outlined readonly clearable
+                @clear="form.endTime = null"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="event" class="cursor-pointer">
+                    <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                      <q-date v-model="form.endTime" mask="YYYY-MM-DDTHH:mm" today-btn>
+                        <div class="row items-center justify-end"><q-btn v-close-popup label="OK" color="primary" flat no-caps /></div>
+                      </q-date>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+                <template v-slot:append>
+                  <q-icon name="access_time" class="cursor-pointer">
+                    <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                      <q-time v-model="form.endTime" mask="YYYY-MM-DDTHH:mm" format24h>
+                        <div class="row items-center justify-end"><q-btn v-close-popup label="OK" color="primary" flat no-caps /></div>
+                      </q-time>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
             </div>
           </div>
         </div>
@@ -239,7 +275,7 @@ function initPointsMap() {
   setTimeout(() => pointsMap.invalidateSize(), 150)
 }
 const copied = ref(false)
-const publicUrl = `${window.location.protocol}//${window.location.host}/#/leaderboard/${eventId}`
+const publicUrl = `${window.location.protocol}//${window.location.host}/leaderboard/${eventId}`
 
 // Convert ISO string → datetime-local string (YYYY-MM-DDTHH:mm)
 function toLocalInput(iso) {
@@ -247,6 +283,11 @@ function toLocalInput(iso) {
   const d = new Date(iso)
   const pad = n => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+function formatDateTime(val) {
+  if (!val) return ''
+  return new Date(val).toLocaleString([], { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
 const copyLink = () => {

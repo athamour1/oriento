@@ -6,6 +6,8 @@ export default {
   scans: 'Scans',
   noEvents: 'No events yet',
   createFirstEvent: 'Create your first event to get started',
+  startPointRequired: 'Please set a start point on the map',
+  returnPointRequired: 'Please set a return point on the map',
   totalEvents: 'Total Events',
   liveNow: 'Live Now',
   nextEvent: 'Next Upcoming',

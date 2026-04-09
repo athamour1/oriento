@@ -6,6 +6,8 @@ export default {
   scans: 'Σαρώσεις',
   noEvents: 'Δεν υπάρχουν events',
   createFirstEvent: 'Δημιούργησε το πρώτο σου event για να ξεκινήσεις',
+  startPointRequired: 'Παρακαλώ ορίστε σημείο εκκίνησης στον χάρτη',
+  returnPointRequired: 'Παρακαλώ ορίστε σημείο επιστροφής στον χάρτη',
   totalEvents: 'Σύνολο Events',
   liveNow: 'Ζωντανά Τώρα',
   nextEvent: 'Επόμενο Event',

@@ -263,13 +263,27 @@ let pointsMap = null
 let startMarker = null
 let returnMarker = null
 let pointsCurrentBaseTile = null
+let pointsLocationDot = null
 const pointsBaseLayers = ref([])
 const pointsBaseName = ref('topo')
+
+function showPointsLocationDot(lat, lng) {
+  if (!pointsMap) return
+  if (pointsLocationDot) pointsMap.removeLayer(pointsLocationDot)
+  pointsLocationDot = L.circleMarker([lat, lng], {
+    radius: 8,
+    fillColor: '#1976d2',
+    fillOpacity: 1,
+    color: '#fff',
+    weight: 3,
+  }).addTo(pointsMap)
+}
 
 function locateOnPointsMap() {
   if (!pointsMap || !navigator.geolocation) return
   navigator.geolocation.getCurrentPosition(pos => {
     pointsMap.setView([pos.coords.latitude, pos.coords.longitude], 15)
+    showPointsLocationDot(pos.coords.latitude, pos.coords.longitude)
   })
 }
 
@@ -379,6 +393,11 @@ onMounted(async () => {
     if (form.value.startLat) {
       startMarker = L.marker([form.value.startLat, form.value.startLng], { icon: startIcon }).addTo(pointsMap)
       pointsMap.setView([form.value.startLat, form.value.startLng], 14)
+    } else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        pointsMap.setView([pos.coords.latitude, pos.coords.longitude], 14)
+        showPointsLocationDot(pos.coords.latitude, pos.coords.longitude)
+      })
     }
     if (!form.value.returnSameAsStart && form.value.returnLat) {
       returnMarker = L.marker([form.value.returnLat, form.value.returnLng], { icon: returnIcon }).addTo(pointsMap)

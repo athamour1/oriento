@@ -405,14 +405,6 @@ const saveEdit = async () => {
   }
 }
 
-const getCurrentLocation = () => {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(pos => {
-      form.value.latitude = pos.coords.latitude
-      form.value.longitude = pos.coords.longitude
-    }, (err) => { console.error(err) })
-  }
-}
 
 const createCheckpoint = async () => {
   try {

@@ -30,24 +30,11 @@
     </q-page-container>
 
     <q-footer bordered :class="$q.dark.isActive ? 'bg-dark' : 'bg-white'">
-      <div class="row no-wrap" style="width:100%;">
-        <q-route-tab
-          class="col footer-tab"
-          name="map" icon="map" :label="$t('map')" to="/team/map" exact
-          no-caps active-color="primary" indicator-color="transparent"
-        />
-        <q-route-tab
-          v-if="!teamEventStore.allDone"
-          class="col footer-tab"
-          name="scan" icon="qr_code_scanner" :label="$t('scanner')" to="/team/scan" exact
-          no-caps active-color="primary" indicator-color="transparent"
-        />
-        <q-route-tab
-          class="col footer-tab"
-          name="leaderboard" icon="leaderboard" :label="$t('leaderboard')" to="/team/leaderboard" exact
-          no-caps active-color="primary" indicator-color="transparent"
-        />
-      </div>
+      <q-tabs no-caps active-color="primary" indicator-color="transparent" align="justify" class="text-grey-7">
+        <q-route-tab class="footer-tab" name="map" icon="map" :label="$t('map')" to="/team/map" exact />
+        <q-route-tab v-if="!teamEventStore.allDone" class="footer-tab" name="scan" icon="qr_code_scanner" :label="$t('scanner')" to="/team/scan" exact />
+        <q-route-tab class="footer-tab" name="leaderboard" icon="leaderboard" :label="$t('leaderboard')" to="/team/leaderboard" exact />
+      </q-tabs>
     </q-footer>
   </q-layout>
 </template>
@@ -87,7 +74,8 @@ const logout = () => {
 <style scoped>
 .tracking-tight { letter-spacing: -0.02em; }
 .footer-tab {
-  min-width: 0;
-  flex: 1 1 0;
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  max-width: none !important;
 }
 </style>

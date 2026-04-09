@@ -137,17 +137,18 @@
     <!-- New Event Wizard -->
     <q-dialog v-model="showNewEventDialog" @hide="destroyNewEventMap" persistent>
       <q-card :style="$q.screen.gt.sm ? 'width: 680px; max-width: 95vw;' : 'width: 95vw;'" style="border-radius: 20px;">
-        <q-stepper v-model="wizardStep" ref="stepper" color="primary" animated flat header-nav :contracted="$q.screen.lt.sm" :alternative-labels="$q.screen.gt.xs">
+        <q-stepper v-model="wizardStep" ref="stepper" color="primary" animated flat :contracted="$q.screen.lt.sm" :alternative-labels="$q.screen.gt.xs">
 
           <!-- Step 1: Basics -->
           <q-step :name="1" :title="$t('basics')" icon="edit_note" :done="wizardStep > 1">
             <div class="q-gutter-md q-pt-sm">
               <q-input
+                ref="nameInput"
                 v-model="newEvent.name"
                 :label="$t('eventName')"
                 :placeholder="$t('eventNamePlaceholder')"
                 autofocus outlined
-                :rules="[val => !!val || t('eventNameRequired')]"
+                :rules="[val => !!val?.trim() || t('eventNameRequired')]"
               />
               <q-input
                 v-model="newEvent.description"
@@ -352,6 +353,7 @@ const nextEvent = computed(() => {
 const showNewEventDialog = ref(false)
 const wizardStep = ref(1)
 const stepper = ref(null)
+const nameInput = ref(null)
 
 const defaultEvent = () => ({ name: '', description: '', isActive: false, showTeamLocation: true, showDirectionArrow: false, startTime: null, endTime: null, firstFinishBonus: 0, language: 'en-US', startLat: null, startLng: null, returnLat: null, returnLng: null, returnSameAsStart: true })
 const newEvent = ref(defaultEvent())
@@ -361,6 +363,7 @@ let newEventMap = null
 let newEventStartMarker = null
 let newEventReturnMarker = null
 let newEventCurrentBase = null
+let newEventLocationDot = null
 const newEventBaseLayers = ref([])
 const newEventBaseName = ref('topo')
 
@@ -389,6 +392,11 @@ watch(wizardStep, async (val) => {
     if (newEvent.value.startLat) {
       newEventStartMarker = L.marker([newEvent.value.startLat, newEvent.value.startLng], { icon: newEventStartIcon }).addTo(newEventMap)
       newEventMap.setView([newEvent.value.startLat, newEvent.value.startLng], 14)
+    } else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        newEventMap.setView([pos.coords.latitude, pos.coords.longitude], 14)
+        showNewEventLocationDot(pos.coords.latitude, pos.coords.longitude)
+      })
     }
     if (!newEvent.value.returnSameAsStart && newEvent.value.returnLat) {
       newEventReturnMarker = L.marker([newEvent.value.returnLat, newEvent.value.returnLng], { icon: newEventReturnIcon }).addTo(newEventMap)
@@ -397,10 +405,23 @@ watch(wizardStep, async (val) => {
   }
 })
 
+function showNewEventLocationDot(lat, lng) {
+  if (!newEventMap) return
+  if (newEventLocationDot) newEventMap.removeLayer(newEventLocationDot)
+  newEventLocationDot = L.circleMarker([lat, lng], {
+    radius: 8,
+    fillColor: '#1976d2',
+    fillOpacity: 1,
+    color: '#fff',
+    weight: 3,
+  }).addTo(newEventMap)
+}
+
 function locateOnNewEventMap() {
   if (!newEventMap || !navigator.geolocation) return
   navigator.geolocation.getCurrentPosition(pos => {
     newEventMap.setView([pos.coords.latitude, pos.coords.longitude], 15)
+    showNewEventLocationDot(pos.coords.latitude, pos.coords.longitude)
   })
 }
 
@@ -441,16 +462,16 @@ function onNewReturnSameToggle(val) {
 }
 
 function destroyNewEventMap() {
-  if (newEventMap) { newEventMap.remove(); newEventMap = null; newEventStartMarker = null; newEventReturnMarker = null; newEventCurrentBase = null }
+  if (newEventMap) { newEventMap.remove(); newEventMap = null; newEventStartMarker = null; newEventReturnMarker = null; newEventCurrentBase = null; newEventLocationDot = null }
   newEvent.value = defaultEvent()
   newPointMode.value = 'start'
   wizardStep.value = 1
 }
 
-function goNext() {
-  if (wizardStep.value === 1 && !newEvent.value.name.trim()) {
-    $q.notify({ type: 'warning', message: t('eventNameRequired'), position: 'top', timeout: 1500 })
-    return
+async function goNext() {
+  if (wizardStep.value === 1) {
+    const valid = await nameInput.value?.validate()
+    if (!valid) return
   }
   stepper.value.next()
 }

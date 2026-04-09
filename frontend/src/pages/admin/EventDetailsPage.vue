@@ -220,6 +220,7 @@ const baseLayers = ref([])
 const activeBaseName = ref('street')
 let currentBaseTile = null
 let map = null
+let locationDot = null
 let editMap = null
 let editMarker = null
 let editCurrentBaseTile = null
@@ -235,10 +236,23 @@ function switchEditBase(layer) {
   localStorage.setItem('adminMapLayer', layer.name)
 }
 
+function showLocationDot(mapInstance, lat, lng) {
+  if (!mapInstance) return
+  if (locationDot) mapInstance.removeLayer(locationDot)
+  locationDot = L.circleMarker([lat, lng], {
+    radius: 8,
+    fillColor: '#1976d2',
+    fillOpacity: 1,
+    color: '#fff',
+    weight: 3,
+  }).addTo(mapInstance)
+}
+
 function locateOnMap(mapInstance) {
   if (!mapInstance || !navigator.geolocation) return
   navigator.geolocation.getCurrentPosition(pos => {
     mapInstance.setView([pos.coords.latitude, pos.coords.longitude], 16)
+    showLocationDot(mapInstance, pos.coords.latitude, pos.coords.longitude)
   })
 }
 
@@ -332,6 +346,11 @@ const fetchCheckpoints = async () => {
 
     if (cpMarkers.length > 0) {
       map.fitBounds(new L.featureGroup(cpMarkers).getBounds().pad(0.1))
+    } else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        map.setView([pos.coords.latitude, pos.coords.longitude], 15)
+        showLocationDot(map, pos.coords.latitude, pos.coords.longitude)
+      })
     }
   } catch (err) { console.error(err) }
   finally { tableLoading.value = false }

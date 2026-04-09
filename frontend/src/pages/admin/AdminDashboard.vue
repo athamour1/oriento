@@ -6,33 +6,90 @@
       <q-btn color="primary" icon="add" :label="$t('newEvent')" unelevated no-caps @click="showNewEventDialog = true" />
     </div>
 
-    <q-card flat bordered class="shadow-2">
-      <q-table
-        :rows="!store.loaded ? skeletonRows : events"
-        :columns="columns"
-        row-key="id"
-        flat
-        class="admin-table"
-      >
-        <template v-slot:body="props">
-          <q-tr :props="props">
-            <q-td v-for="col in props.cols" :key="col.name" :props="props">
-              <q-skeleton v-if="!store.loaded" type="text" />
-              <template v-else-if="col.name === 'actions'">
-                <q-btn flat round color="primary" dense icon="settings" @click="$router.push(`/admin/events/${props.row.id}`)">
-                  <q-tooltip>{{ $t('manage') }}</q-tooltip>
-                </q-btn>
-                <q-btn flat round color="secondary" dense icon="share" class="q-ml-xs" @click="copyLeaderboardLink(props.row.id)">
-                  <q-tooltip>{{ $t('copyPublicLink') }}</q-tooltip>
-                </q-btn>
-                <q-btn flat round color="negative" dense icon="delete" class="q-ml-xs" @click="confirmDeleteEvent(props.row)" />
-              </template>
-              <template v-else>{{ col.value }}</template>
-            </q-td>
-          </q-tr>
-        </template>
-      </q-table>
-    </q-card>
+    <!-- Skeleton cards while loading -->
+    <div v-if="!store.loaded" class="row q-col-gutter-md">
+      <div v-for="i in 3" :key="i" class="col-12 col-sm-6 col-md-4">
+        <q-card flat bordered class="event-card">
+          <q-card-section>
+            <q-skeleton type="text" width="60%" class="q-mb-xs" />
+            <q-skeleton type="text" width="30%" />
+          </q-card-section>
+          <q-card-section class="q-pt-none">
+            <q-skeleton type="text" class="q-mb-xs" />
+            <q-skeleton type="text" width="80%" />
+          </q-card-section>
+          <q-separator />
+          <q-card-actions>
+            <q-skeleton type="QBtn" width="80px" />
+            <q-space />
+            <q-skeleton type="QAvatar" size="32px" />
+            <q-skeleton type="QAvatar" size="32px" class="q-ml-xs" />
+          </q-card-actions>
+        </q-card>
+      </div>
+    </div>
+
+    <!-- Event cards -->
+    <div v-else-if="events.length > 0" class="row q-col-gutter-md">
+      <div v-for="ev in events" :key="ev.id" class="col-12 col-sm-6 col-md-4">
+        <q-card flat bordered class="event-card" @click="$router.push(`/admin/events/${ev.id}`)" style="cursor:pointer;">
+          <q-card-section class="q-pb-sm">
+            <div class="row items-start no-wrap">
+              <div class="col">
+                <div class="text-subtitle1 text-weight-bold ellipsis" style="letter-spacing:-0.01em;">{{ ev.name }}</div>
+                <div v-if="ev.description" class="text-caption text-grey-6 ellipsis-2-lines q-mt-xs">{{ ev.description }}</div>
+              </div>
+              <q-badge :color="ev.isActive ? 'positive' : 'grey-6'" class="q-ml-sm q-mt-xs" style="flex-shrink:0;">
+                {{ ev.isActive ? $t('live') : $t('draft') }}
+              </q-badge>
+            </div>
+          </q-card-section>
+
+          <q-card-section class="q-pt-none q-pb-sm">
+            <!-- Timer row -->
+            <div v-if="ev.startTime || ev.endTime" class="row items-center q-gutter-xs text-caption text-grey-7 q-mb-sm">
+              <q-icon name="schedule" size="14px" />
+              <span v-if="ev.startTime">{{ formatDateShort(ev.startTime) }}</span>
+              <span v-if="ev.startTime && ev.endTime">→</span>
+              <span v-if="ev.endTime">{{ formatDateShort(ev.endTime) }}</span>
+            </div>
+
+            <!-- Stats chips -->
+            <div class="row q-gutter-xs">
+              <q-chip v-if="eventStats[ev.id]" dense square icon="group" color="primary" text-color="white" size="sm">
+                {{ eventStats[ev.id].teamCount }} {{ $t('teams') }}
+              </q-chip>
+              <q-chip v-if="eventStats[ev.id]" dense square icon="place" color="secondary" text-color="white" size="sm">
+                {{ eventStats[ev.id].checkpointCount }} {{ $t('checkpoints') }}
+              </q-chip>
+              <q-chip v-if="eventStats[ev.id]" dense square icon="qr_code_scanner" color="purple-6" text-color="white" size="sm">
+                {{ eventStats[ev.id].scanCount }} {{ $t('scans') }}
+              </q-chip>
+              <q-skeleton v-if="!eventStats[ev.id]" type="QChip" dense />
+            </div>
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-actions class="q-px-md" @click.stop>
+            <q-btn unelevated color="primary" icon="settings" :label="$t('manage')" size="sm" no-caps @click="$router.push(`/admin/events/${ev.id}`)" />
+            <q-space />
+            <q-btn flat round icon="share" color="grey-6" size="sm" @click="copyLeaderboardLink(ev.id)">
+              <q-tooltip>{{ $t('copyPublicLink') }}</q-tooltip>
+            </q-btn>
+            <q-btn flat round icon="delete" color="negative" size="sm" @click="confirmDeleteEvent(ev)" />
+          </q-card-actions>
+        </q-card>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div v-else class="column items-center justify-center q-py-xl text-grey-6">
+      <q-icon name="sentiment_neutral" size="4rem" class="q-mb-md" />
+      <div class="text-h6">{{ $t('noEvents') }}</div>
+      <div class="text-caption q-mt-xs">{{ $t('createFirstEvent') }}</div>
+      <q-btn unelevated color="primary" icon="add" :label="$t('newEvent')" class="q-mt-lg" no-caps @click="showNewEventDialog = true" />
+    </div>
 
     <!-- New Event Wizard -->
     <q-dialog v-model="showNewEventDialog" @hide="destroyNewEventMap" persistent>
@@ -219,7 +276,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick, watch } from 'vue'
+import { ref, computed, onMounted, nextTick, watch, reactive } from 'vue'
+
 import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
 import { useEventsStore } from 'src/stores/events'
@@ -231,7 +289,7 @@ const $q = useQuasar()
 const { t } = useI18n()
 const store = useEventsStore()
 const events = computed(() => store.events)
-const skeletonRows = Array.from({ length: 4 }, (_, i) => ({ id: i }))
+const eventStats = reactive({})
 const showNewEventDialog = ref(false)
 const wizardStep = ref(1)
 const stepper = ref(null)
@@ -327,19 +385,36 @@ function formatDateTime(val) {
   return new Date(val).toLocaleString([], { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
-onMounted(() => { if (!store.loaded) store.fetchEvents() })
+function formatDateShort(val) {
+  if (!val) return ''
+  return new Date(val).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
+
+async function fetchStats(evId) {
+  try {
+    const res = await api.get(`/admin/events/${evId}/stats`)
+    eventStats[evId] = {
+      teamCount: res.data.teamCount ?? 0,
+      checkpointCount: res.data.checkpoints?.length ?? 0,
+      scanCount: res.data.checkpoints?.reduce((s, cp) => s + (cp._count?.scans ?? 0), 0) ?? 0,
+    }
+  } catch { /* ignore */ }
+}
+
+onMounted(async () => {
+  if (!store.loaded) await store.fetchEvents()
+  events.value.forEach(ev => fetchStats(ev.id))
+})
+
+watch(events, (list) => {
+  list.forEach(ev => { if (!eventStats.value[ev.id]) fetchStats(ev.id) })
+})
 
 const copyLeaderboardLink = (eventId) => {
   const url = `${window.location.protocol}//${window.location.host}/leaderboard/${eventId}`
   navigator.clipboard.writeText(url)
 }
 
-const columns = computed(() => [
-  { name: 'id', required: true, label: t('id'), align: 'left', field: 'id', sortable: true },
-  { name: 'name', required: true, label: t('name'), align: 'left', field: 'name', sortable: true },
-  { name: 'isActive', label: t('status'), align: 'center', field: 'isActive', sortable: true, format: val => val ? t('live') : t('draft') },
-  { name: 'actions', label: t('actions'), align: 'right' }
-])
 
 const createEvent = async () => {
   try {
@@ -372,8 +447,23 @@ const confirmDeleteEvent = (eventRow) => {
 </script>
 
 <style scoped>
-.admin-page { max-width: 900px; margin: 0 auto; }
+.admin-page { max-width: 1100px; margin: 0 auto; }
 .tracking-tight { letter-spacing: -0.02em; }
+.event-card {
+  border-radius: 14px;
+  transition: box-shadow 0.2s, transform 0.15s;
+  height: 100%;
+}
+.event-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.12) !important;
+}
+.ellipsis-2-lines {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 .new-event-zoom-btns {
   position: absolute;
   top: 8px;

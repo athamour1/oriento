@@ -34,40 +34,60 @@
       </q-table>
     </q-card>
 
-    <!-- New Event Modal -->
-    <q-dialog v-model="showNewEventDialog" @show="initNewEventMap" @hide="destroyNewEventMap">
-      <q-card style="min-width: 420px; width: 95vw; max-width: 560px; border-radius: 20px; max-height: 90vh; display: flex; flex-direction: column;" class="q-pa-sm">
-        <q-card-section class="q-pb-sm" style="flex-shrink: 0;">
-          <div class="text-h6 text-weight-bold tracking-tight">{{ $t('createEventTitle') }}</div>
-          <div class="text-caption text-grey-7">{{ $t('defineParameters') }}</div>
-        </q-card-section>
-        <q-card-section class="q-pt-none q-pb-lg" style="overflow-y: auto; flex: 1;">
-            <q-form @submit="createEvent" class="q-gutter-md">
+    <!-- New Event Wizard -->
+    <q-dialog v-model="showNewEventDialog" @hide="destroyNewEventMap" persistent>
+      <q-card style="min-width: 480px; width: 95vw; max-width: 620px; border-radius: 20px;">
+        <q-stepper v-model="wizardStep" ref="stepper" color="primary" animated flat header-nav>
 
-            <q-input
-              v-model="newEvent.name"
-              :label="$t('eventName')"
-              :placeholder="$t('eventNamePlaceholder')"
-              autofocus outlined
-              :rules="[val => !!val || t('eventNameRequired')]"
-            />
-            <q-input
-              v-model="newEvent.description"
-              :label="$t('eventDesc')"
-              type="textarea" outlined autogrow
-            />
+          <!-- Step 1: Basics -->
+          <q-step :name="1" :title="$t('basics')" icon="edit_note" :done="wizardStep > 1">
+            <div class="q-gutter-md q-pt-sm">
+              <q-input
+                v-model="newEvent.name"
+                :label="$t('eventName')"
+                :placeholder="$t('eventNamePlaceholder')"
+                autofocus outlined
+                :rules="[val => !!val || t('eventNameRequired')]"
+              />
+              <q-input
+                v-model="newEvent.description"
+                :label="$t('eventDesc')"
+                type="textarea" outlined autogrow
+              />
+              <div>
+                <div class="text-caption text-grey-7 q-mb-xs">{{ $t('language') }}</div>
+                <q-btn-toggle
+                  v-model="newEvent.language"
+                  unelevated rounded toggle-color="primary"
+                  :options="[
+                    { label: $t('english'), value: 'en-US' },
+                    { label: $t('greek'),   value: 'el' },
+                  ]"
+                />
+              </div>
+            </div>
+          </q-step>
 
-            <q-separator />
+          <!-- Step 2: Settings -->
+          <q-step :name="2" :title="$t('settings')" icon="tune" :done="wizardStep > 2">
+            <div class="q-gutter-md q-pt-sm">
+              <q-toggle v-model="newEvent.isActive" :label="$t('activateImmediately')" checked-icon="check" unchecked-icon="clear" color="positive" size="lg" />
+              <q-separator />
+              <q-toggle v-model="newEvent.showTeamLocation" :label="$t('showTeamLocation')" checked-icon="location_on" unchecked-icon="location_off" color="primary" size="lg" />
+              <q-separator />
+              <q-toggle v-model="newEvent.showDirectionArrow" :label="$t('showDirectionArrow')" checked-icon="navigation" unchecked-icon="radio_button_unchecked" color="primary" size="lg" />
+              <div class="text-caption text-grey-7">{{ $t('showDirectionArrowDesc') }}</div>
+              <q-separator />
+              <div class="text-subtitle2 text-weight-bold">🏅 {{ $t('firstFinishBonus') }}</div>
+              <div class="text-caption text-grey-7">{{ $t('firstFinishBonusDesc') }}</div>
+              <q-input v-model.number="newEvent.firstFinishBonus" :label="$t('bonusPoints')" outlined type="number" min="0" :hint="$t('firstFinishBonusHint')" />
+            </div>
+          </q-step>
 
-            <q-toggle v-model="newEvent.isActive" :label="$t('activateImmediately')" checked-icon="check" unchecked-icon="clear" color="positive" size="lg" />
-            <q-toggle v-model="newEvent.showTeamLocation" :label="$t('showTeamLocation')" checked-icon="location_on" unchecked-icon="location_off" color="primary" size="lg" />
-            <q-toggle v-model="newEvent.showDirectionArrow" :label="$t('showDirectionArrow')" checked-icon="navigation" unchecked-icon="radio_button_unchecked" color="primary" size="lg" />
-            <div class="text-caption text-grey-7 q-mt-xs">{{ $t('showDirectionArrowDesc') }}</div>
-
-            <q-separator />
-
-            <div class="text-subtitle2 text-weight-bold q-mb-xs">⏱ {{ $t('eventTimer') }}</div>
-            <div>
+          <!-- Step 3: Schedule -->
+          <q-step :name="3" :title="$t('eventTimer')" icon="schedule" :done="wizardStep > 3">
+            <div class="q-gutter-md q-pt-sm">
+              <div class="text-caption text-grey-7">{{ $t('eventTimerDesc') }}</div>
               <div class="row q-col-gutter-md">
                 <div class="col-12 col-sm-6">
                   <q-input
@@ -125,82 +145,81 @@
                 </div>
               </div>
             </div>
+          </q-step>
 
-            <q-separator />
+          <!-- Step 4: Location -->
+          <q-step :name="4" :title="$t('startReturnPoints')" icon="flag">
+            <div class="q-gutter-sm q-pt-sm">
+              <div class="text-caption text-grey-7">{{ $t('startReturnDesc') }}</div>
+              <div class="row q-gutter-sm">
+                <q-btn-toggle
+                  v-model="newPointMode"
+                  unelevated rounded toggle-color="primary"
+                  :options="[
+                    { label: $t('setStartPoint'), value: 'start' },
+                    { label: $t('setReturnPoint'), value: 'return' },
+                  ]"
+                  :disable="newEvent.returnSameAsStart"
+                />
+              </div>
+              <q-toggle v-model="newEvent.returnSameAsStart" :label="$t('returnSameAsStart')" color="primary" @update:model-value="onNewReturnSameToggle" />
+              <div style="position:relative; border-radius:10px; overflow:hidden; height:240px;">
+                <div id="new-event-map" style="height:240px; width:100%;"></div>
+                <div class="new-event-zoom-btns">
+                  <q-btn round elevated color="white" text-color="dark" icon="add" size="xs" @click="newEventMap && newEventMap.zoomIn()" />
+                  <q-btn round elevated color="white" text-color="dark" icon="remove" size="xs" @click="newEventMap && newEventMap.zoomOut()" />
+                </div>
+                <div class="new-event-layer-btn">
+                  <q-btn round elevated icon="layers" color="white" text-color="grey-8" size="xs">
+                    <q-menu anchor="top right" self="bottom right" :offset="[0, 6]">
+                      <q-list dense style="min-width:150px; padding: 4px;">
+                        <q-item v-for="layer in newEventBaseLayers" :key="layer.name" clickable @click="switchNewEventBase(layer)" v-close-popup :class="['layer-item', { 'layer-item--active': newEventBaseName === layer.name }]">
+                          <q-item-section>{{ layer.label }}</q-item-section>
+                        </q-item>
+                      </q-list>
+                    </q-menu>
+                  </q-btn>
+                </div>
+              </div>
+              <div class="row q-gutter-md text-caption">
+                <div class="row items-center q-gutter-xs">
+                  <div style="width:10px;height:10px;border-radius:50%;background:#43a047;"></div>
+                  <span>{{ $t('startPoint') }}: {{ newEvent.startLat ? `${newEvent.startLat}, ${newEvent.startLng}` : $t('notSet') }}</span>
+                </div>
+                <div v-if="!newEvent.returnSameAsStart" class="row items-center q-gutter-xs">
+                  <div style="width:10px;height:10px;border-radius:50%;background:#e53935;"></div>
+                  <span>{{ $t('returnPoint') }}: {{ newEvent.returnLat ? `${newEvent.returnLat}, ${newEvent.returnLng}` : $t('notSet') }}</span>
+                </div>
+              </div>
+            </div>
+          </q-step>
 
-            <div class="text-subtitle2 text-weight-bold q-mb-xs">🏅 {{ $t('firstFinishBonus') }}</div>
-            <q-input v-model.number="newEvent.firstFinishBonus" :label="$t('bonusPoints')" outlined type="number" min="0" :hint="$t('firstFinishBonusHint')" />
-
-            <q-separator />
-
-            <div class="text-subtitle2 text-weight-bold q-mb-xs">🚩 {{ $t('startReturnPoints') }}</div>
-            <div class="text-caption text-grey-7 q-mb-sm">{{ $t('startReturnDesc') }}</div>
-            <div class="row q-gutter-sm q-mb-sm">
-              <q-btn-toggle
-                v-model="newPointMode"
-                unelevated rounded toggle-color="primary"
-                :options="[
-                  { label: $t('setStartPoint'), value: 'start' },
-                  { label: $t('setReturnPoint'), value: 'return' },
-                ]"
-                :disable="newEvent.returnSameAsStart"
+          <template v-slot:navigation>
+            <q-stepper-navigation class="row items-center q-pt-md">
+              <q-btn flat :label="$t('cancel')" color="grey-7" no-caps @click="showNewEventDialog = false" />
+              <q-space />
+              <q-btn v-if="wizardStep > 1" flat :label="$t('back')" color="grey-7" no-caps class="q-mr-sm" @click="stepper.previous()" />
+              <q-btn
+                v-if="wizardStep < 4"
+                unelevated color="primary" :label="$t('next')" no-caps
+                @click="goNext"
               />
-            </div>
-            <q-toggle v-model="newEvent.returnSameAsStart" :label="$t('returnSameAsStart')" color="primary" class="q-mb-sm" @update:model-value="onNewReturnSameToggle" />
-            <div style="position:relative; border-radius:10px; overflow:hidden; height:220px;">
-              <div id="new-event-map" style="height:220px; width:100%;"></div>
-              <div class="new-event-zoom-btns">
-                <q-btn round elevated color="white" text-color="dark" icon="add" size="xs" @click="newEventMap && newEventMap.zoomIn()" />
-                <q-btn round elevated color="white" text-color="dark" icon="remove" size="xs" @click="newEventMap && newEventMap.zoomOut()" />
-              </div>
-              <div class="new-event-layer-btn">
-                <q-btn round elevated icon="layers" color="white" text-color="grey-8" size="xs">
-                  <q-menu anchor="top right" self="bottom right" :offset="[0, 6]">
-                    <q-list dense style="min-width:150px; padding: 4px;">
-                      <q-item v-for="layer in newEventBaseLayers" :key="layer.name" clickable @click="switchNewEventBase(layer)" v-close-popup :class="['layer-item', { 'layer-item--active': newEventBaseName === layer.name }]">
-                        <q-item-section>{{ layer.label }}</q-item-section>
-                      </q-item>
-                    </q-list>
-                  </q-menu>
-                </q-btn>
-              </div>
-            </div>
-            <div class="row q-mt-xs q-gutter-md text-caption">
-              <div class="row items-center q-gutter-xs">
-                <div style="width:10px;height:10px;border-radius:50%;background:#43a047;"></div>
-                <span>{{ $t('startPoint') }}: {{ newEvent.startLat ? `${newEvent.startLat}, ${newEvent.startLng}` : $t('notSet') }}</span>
-              </div>
-              <div v-if="!newEvent.returnSameAsStart" class="row items-center q-gutter-xs">
-                <div style="width:10px;height:10px;border-radius:50%;background:#e53935;"></div>
-                <span>{{ $t('returnPoint') }}: {{ newEvent.returnLat ? `${newEvent.returnLat}, ${newEvent.returnLng}` : $t('notSet') }}</span>
-              </div>
-            </div>
+              <q-btn
+                v-else
+                unelevated color="positive" icon="rocket_launch" :label="$t('deployEvent')" no-caps
+                @click="createEvent"
+              />
+            </q-stepper-navigation>
+          </template>
 
-            <q-separator />
-
-            <div class="text-subtitle2 text-weight-bold q-mb-xs">{{ $t('language') }}</div>
-            <q-btn-toggle
-              v-model="newEvent.language"
-              unelevated rounded toggle-color="primary"
-              :options="[
-                { label: $t('english'), value: 'en-US' },
-                { label: $t('greek'),   value: 'el' },
-              ]"
-            />
-
-            <div class="row justify-end q-mt-lg q-gutter-sm">
-              <q-btn flat :label="$t('cancel')" color="grey-7" v-close-popup no-caps />
-              <q-btn unelevated :label="$t('deployEvent')" color="primary" type="submit" no-caps />
-            </div>
-            </q-form>
-        </q-card-section>
+        </q-stepper>
       </q-card>
     </q-dialog>
   </q-page>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
 import { useEventsStore } from 'src/stores/events'
@@ -214,7 +233,11 @@ const store = useEventsStore()
 const events = computed(() => store.events)
 const skeletonRows = Array.from({ length: 4 }, (_, i) => ({ id: i }))
 const showNewEventDialog = ref(false)
+const wizardStep = ref(1)
+const stepper = ref(null)
+
 const defaultEvent = () => ({ name: '', description: '', isActive: false, showTeamLocation: true, showDirectionArrow: false, startTime: null, endTime: null, firstFinishBonus: 0, language: 'en-US', startLat: null, startLng: null, returnLat: null, returnLng: null, returnSameAsStart: true })
+const newEvent = ref(defaultEvent())
 
 const newPointMode = ref('start')
 let newEventMap = null
@@ -226,6 +249,27 @@ const newEventBaseName = ref('topo')
 
 const newEventStartIcon = L.divIcon({ className: '', html: '<div style="width:14px;height:14px;border-radius:50%;background:#43a047;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>', iconSize: [14, 14], iconAnchor: [7, 7] })
 const newEventReturnIcon = L.divIcon({ className: '', html: '<div style="width:14px;height:14px;border-radius:50%;background:#e53935;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>', iconSize: [14, 14], iconAnchor: [7, 7] })
+
+// Init map when navigating to step 4
+watch(wizardStep, async (val) => {
+  if (val === 4) {
+    await nextTick()
+    if (newEventMap) { newEventMap.invalidateSize(); return }
+    newEventMap = L.map('new-event-map', { zoomControl: false }).setView([38.0, 23.7], 11)
+    newEventBaseLayers.value = [
+      { name: 'street',    label: '🗺️ Street',      tile: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }) },
+      { name: 'topo',      label: '⛰️ Topographic', tile: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17, attribution: '© OpenTopoMap' }) },
+      { name: 'satellite', label: '🛰️ Satellite',   tile: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '© Esri' }) },
+      { name: 'dark',      label: '🌙 Dark',         tile: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19, attribution: '© CartoDB' }) },
+    ]
+    const initName = localStorage.getItem('adminMapLayer') || 'topo'
+    newEventBaseName.value = initName
+    newEventCurrentBase = newEventBaseLayers.value.find(l => l.name === initName).tile
+    newEventCurrentBase.addTo(newEventMap)
+    newEventMap.on('click', (e) => placeNewEventMarker(e.latlng, newEvent.value.returnSameAsStart ? 'start' : newPointMode.value))
+    setTimeout(() => newEventMap.invalidateSize(), 150)
+  }
+})
 
 function switchNewEventBase(layer) {
   if (!newEventMap || !layer) return
@@ -263,35 +307,25 @@ function onNewReturnSameToggle(val) {
   }
 }
 
-async function initNewEventMap() {
-  await nextTick()
-  if (newEventMap) return
-  newEventMap = L.map('new-event-map', { zoomControl: false }).setView([38.0, 23.7], 11)
-  newEventBaseLayers.value = [
-    { name: 'street',    label: '🗺️ Street',      tile: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }) },
-    { name: 'topo',      label: '⛰️ Topographic', tile: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17, attribution: '© OpenTopoMap' }) },
-    { name: 'satellite', label: '🛰️ Satellite',   tile: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '© Esri' }) },
-    { name: 'dark',      label: '🌙 Dark',         tile: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19, attribution: '© CartoDB' }) },
-  ]
-  const initName = localStorage.getItem('adminMapLayer') || 'topo'
-  newEventBaseName.value = initName
-  newEventCurrentBase = newEventBaseLayers.value.find(l => l.name === initName).tile
-  newEventCurrentBase.addTo(newEventMap)
-  newEventMap.on('click', (e) => placeNewEventMarker(e.latlng, newEvent.value.returnSameAsStart ? 'start' : newPointMode.value))
-  setTimeout(() => newEventMap.invalidateSize(), 150)
-}
-
 function destroyNewEventMap() {
   if (newEventMap) { newEventMap.remove(); newEventMap = null; newEventStartMarker = null; newEventReturnMarker = null; newEventCurrentBase = null }
   newEvent.value = defaultEvent()
   newPointMode.value = 'start'
+  wizardStep.value = 1
+}
+
+function goNext() {
+  if (wizardStep.value === 1 && !newEvent.value.name.trim()) {
+    $q.notify({ type: 'warning', message: t('eventNameRequired'), position: 'top', timeout: 1500 })
+    return
+  }
+  stepper.value.next()
 }
 
 function formatDateTime(val) {
   if (!val) return ''
   return new Date(val).toLocaleString([], { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
-const newEvent = ref(defaultEvent())
 
 onMounted(() => { if (!store.loaded) store.fetchEvents() })
 

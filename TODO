@@ -59,7 +59,7 @@
 - [X] add on password input on login page the show password button on the input
 - [X] fix the padding for the event timer please on event settings page
 - [X] if the timer is enabled show it for the teams somehow and the public leaderboard
-- [ ] create a landing page for this project on github pages
+- [X] create a landing page for this project on github pages
 - [X] change the map zoom buttons to ditached round ones
 - [X] also add the layer button from teams to checkpoints adminm page
 - [X] allow admin to edit a point in the dialog open a small map like the one above to change the location of a point and all the other parameters
@@ -85,3 +85,4 @@
 - [X] fix the public leaderboard link it has the hash
 - [X] admins profile settings for password and language
 - [X] on Live Activity Feed page show the points each team got from the scanning this isnt every time 10 poitns it may be very if the first scan has deferent points
+- [X] fix language sellection for admin and event, on event settings should affect only the teams and from profile settings it should affect only the admin. Also keep the amdin perference to the database.

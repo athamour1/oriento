@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ─── Configuration ──────────────────────────────────────────────────────────────
-REPO="athamour1/orientiring"
+REPO="athamour1/oriento"
 REGISTRY="ghcr.io"
 BACKEND_IMAGE="${REGISTRY}/${REPO}/backend"
 FRONTEND_IMAGE="${REGISTRY}/${REPO}/frontend"

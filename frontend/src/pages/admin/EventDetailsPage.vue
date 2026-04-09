@@ -8,28 +8,34 @@
 
     <!-- Map Preview -->
     <q-card flat bordered class="shadow-2 q-mb-lg overflow-hidden" style="border-radius:14px; position: relative;">
-      <div id="admin-map" style="height: 320px; width: 100%;"></div>
-      <div class="admin-zoom-btns">
-        <q-btn round elevated color="white" text-color="dark" icon="add" size="sm" @click="map && map.zoomIn()" />
-        <q-btn round elevated color="white" text-color="dark" icon="remove" size="sm" @click="map && map.zoomOut()" />
-      </div>
-      <div class="admin-layer-btn">
-        <q-btn round elevated icon="layers" color="white" text-color="grey-8" size="sm">
-          <q-menu anchor="top right" self="bottom right" :offset="[0, 8]" class="layer-menu">
-            <q-list dense style="min-width:160px; padding: 6px;">
-              <q-item
-                v-for="layer in baseLayers"
-                :key="layer.name"
-                clickable
-                @click="switchBase(layer)"
-                v-close-popup
-                :class="['layer-item', { 'layer-item--active': activeBaseName === layer.name }]"
-              >
-                <q-item-section>{{ layer.label }}</q-item-section>
-              </q-item>
-            </q-list>
-          </q-menu>
-        </q-btn>
+      <div id="admin-map" style="height: 320px; width: 100%; position: relative;">
+        <transition name="fade">
+          <div v-if="!mapReady" style="position:absolute;inset:0;z-index:10;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;">
+            <q-spinner-orbit color="primary" size="48px" />
+          </div>
+        </transition>
+        <div class="admin-zoom-btns">
+          <q-btn round elevated color="white" text-color="dark" icon="add" size="sm" @click="map && map.zoomIn()" />
+          <q-btn round elevated color="white" text-color="dark" icon="remove" size="sm" @click="map && map.zoomOut()" />
+        </div>
+        <div class="admin-layer-btn">
+          <q-btn round elevated icon="layers" color="white" text-color="grey-8" size="sm">
+            <q-menu anchor="top right" self="bottom right" :offset="[0, 8]" class="layer-menu">
+              <q-list dense style="min-width:160px; padding: 6px;">
+                <q-item
+                  v-for="layer in baseLayers"
+                  :key="layer.name"
+                  clickable
+                  @click="switchBase(layer)"
+                  v-close-popup
+                  :class="['layer-item', { 'layer-item--active': activeBaseName === layer.name }]"
+                >
+                  <q-item-section>{{ layer.label }}</q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
+          </q-btn>
+        </div>
       </div>
     </q-card>
 
@@ -175,6 +181,7 @@ const { t } = useI18n()
 const eventId = route.params.eventId
 const checkpoints = ref([])
 const tableLoading = ref(true)
+const mapReady = ref(false)
 const skeletonRows = Array.from({ length: 5 }, (_, i) => ({ id: i }))
 const showDialog = ref(false)
 const previewDialog = ref(false)
@@ -239,7 +246,8 @@ onMounted(async () => {
     showDialog.value = true
   })
   setTimeout(() => map.invalidateSize(), 100)
-  fetchCheckpoints()
+  await fetchCheckpoints()
+  mapReady.value = true
 })
 
 let cpMarkers = []

@@ -2,8 +2,6 @@
   <q-page class="q-pa-lg admin-page">
     <div class="row items-center q-mb-xl">
       <div class="text-h5 text-weight-bold tracking-tight">{{ $t('liveActivityFeed') }}</div>
-      <q-space />
-      <q-btn flat round color="primary" icon="refresh" @click="fetchAll" :loading="loading" />
     </div>
 
     <!-- Live Map -->
@@ -159,7 +157,6 @@ const $q = useQuasar()
 const { t } = useI18n()
 const eventId = route.params.eventId
 const logs = ref([])
-const loading = ref(false)
 const mapReady = ref(false)
 const selectedTeamId = ref(null)
 const isConnected = ref(false)
@@ -220,39 +217,28 @@ async function toggleTeam(id) {
   await renderRoute()
 }
 
-// ─── SVG Arc Ring helpers ──────────────────────────────────────────────────
-function buildArcSvg(filled, total) {
-  const R = 20, r = 12, cx = 26, cy = 26, size = 52
-
-  if (total === 0) {
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
-      <circle cx="${cx}" cy="${cy}" r="${(R+r)/2}" fill="none" stroke="#bbb" stroke-width="${R-r}" />
-    </svg>`
-  }
-
-  const allDone = filled >= total
-  const paths = []
-  const gap = 0.05
-
-  for (let i = 0; i < total; i++) {
-    const startAngle = (2 * Math.PI * i) / total - Math.PI / 2 + gap / 2
-    const endAngle   = (2 * Math.PI * (i + 1)) / total - Math.PI / 2 - gap / 2
-    const x1 = cx + R * Math.cos(startAngle), y1 = cy + R * Math.sin(startAngle)
-    const x2 = cx + R * Math.cos(endAngle),   y2 = cy + R * Math.sin(endAngle)
-    const x3 = cx + r * Math.cos(endAngle),   y3 = cy + r * Math.sin(endAngle)
-    const x4 = cx + r * Math.cos(startAngle), y4 = cy + r * Math.sin(startAngle)
-    const large = (endAngle - startAngle) > Math.PI ? 1 : 0
-    const color = allDone ? '#43a047' : (i < filled ? '#fb8c00' : '#e53935')
-    paths.push(`<path d="M ${x1} ${y1} A ${R} ${R} 0 ${large} 1 ${x2} ${y2} L ${x3} ${y3} A ${r} ${r} 0 ${large} 0 ${x4} ${y4} Z" fill="${color}" stroke="#fff" stroke-width="0.5"/>`)
-  }
-
-  paths.push(`<circle cx="${cx}" cy="${cy}" r="${r - 2}" fill="white" opacity="0.92"/>`)
-  paths.push(`<text x="${cx}" y="${cy + 4}" text-anchor="middle" font-size="10" font-weight="bold" fill="#111" font-family="sans-serif">${filled}/${total}</text>`)
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">${paths.join('')}</svg>`
+// ─── Circular progress ring (mimics q-circular-progress) ──────────────────
+function ringColor(pct) {
+  if (pct >= 67) return '#43a047'
+  if (pct >= 34) return '#fb8c00'
+  return '#e53935'
 }
 
 function makeRingIcon(filled, total) {
-  const svg = buildArcSvg(filled, total)
+  const size = 52, cx = 26, cy = 26, r = 18, sw = 6
+  const circumference = 2 * Math.PI * r
+  const pct = total === 0 ? 0 : Math.round((filled / total) * 100)
+  const dash = (pct / 100) * circumference
+  const color = ringColor(pct)
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="white" stroke="#e0e0e0" stroke-width="${sw}" />
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="${sw}"
+      stroke-dasharray="${dash} ${circumference}" stroke-dashoffset="${circumference / 4}"
+      stroke-linecap="round" />
+    <text x="${cx}" y="${cy + 4}" text-anchor="middle" font-size="10" font-weight="bold" fill="#111" font-family="sans-serif">${filled}/${total}</text>
+  </svg>`
+
   const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg)
   return L.icon({ iconUrl: url, iconSize: [52, 52], iconAnchor: [26, 26], popupAnchor: [0, -26] })
 }
@@ -322,7 +308,6 @@ function extendRoute(teamId, latitude, longitude) {
 let lastLocations = []
 
 const fetchAll = async () => {
-  loading.value = true
   try {
     const [logsRes, statsRes, locRes, teamsRes] = await Promise.all([
       api.get(`/admin/events/${eventId}/logs`),
@@ -336,9 +321,8 @@ const fetchAll = async () => {
     renderCheckpoints(statsRes.data)
     renderTeams(locRes.data)
   } catch {
-    // Polling failure — next interval will retry
+    // silently skip
   }
-  loading.value = false
 }
 
 function renderCheckpoints(stats) {
@@ -405,7 +389,6 @@ onMounted(async () => {
   await nextTick()
 
   map = L.map('admin-live-map', { center: [0, 0], zoom: 2, zoomControl: false })
-  map.whenReady(() => { mapReady.value = true })
   const pane = map.createPane('selectedTeamPane')
   pane.style.zIndex = 650
 
@@ -440,6 +423,7 @@ onMounted(async () => {
 
   // Initial load via REST
   await fetchAll()
+  mapReady.value = true
 
   // Live updates via WebSocket — no polling needed
   const { socket, isConnected: socketConnected } = useEventSocket(eventId)

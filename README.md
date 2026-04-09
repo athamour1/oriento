@@ -2,7 +2,7 @@
 
 **Oriento** is an open-source orienteering and scavenger hunt management platform built for the modern web. Administrators design, launch and monitor live geospatial scavenger hunts while teams use a native-feeling Progressive Web App to navigate maps, scan QR checkpoints and compete on live leaderboards.
 
-🌐 **[Live Landing Page](https://athamour1.github.io/orientiring/)** &nbsp;|&nbsp; ⭐ **[GitHub](https://github.com/athamour1/orientiring)**
+🌐 **[Live Landing Page](https://athamour1.github.io/oriento/)**
 
 ---
 
@@ -22,15 +22,15 @@
 
 ## 🛠️ Technology Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | Vue 3 + Quasar Framework (Vite) |
-| Backend | NestJS (TypeScript) |
-| Database | PostgreSQL 15 |
-| ORM | Prisma |
-| Real-time | Socket.IO |
-| Maps | Leaflet |
-| Infrastructure | Docker + Docker Compose |
+| Layer          | Technology                      |
+| -------------- | ------------------------------- |
+| Frontend       | Vue 3 + Quasar Framework (Vite) |
+| Backend        | NestJS (TypeScript)             |
+| Database       | PostgreSQL 15                   |
+| ORM            | Prisma                          |
+| Real-time      | Socket.IO                       |
+| Maps           | Leaflet                         |
+| Infrastructure | Docker + Docker Compose         |
 
 ---
 
@@ -45,8 +45,8 @@ The fastest way to boot the stack locally is Docker Compose.
 
 ```bash
 # 1. Clone
-git clone https://github.com/athamour1/orientiring.git
-cd orientiring
+git clone https://github.com/athamour1/oriento.git
+cd oriento
 
 # 2. Start everything
 docker compose up --build
@@ -56,10 +56,10 @@ This provisions PostgreSQL, applies Prisma migrations, seeds initial data and bo
 
 ### Access
 
-| Service | URL |
-|---|---|
+| Service        | URL                   |
+| -------------- | --------------------- |
 | Frontend (PWA) | http://localhost:9000 |
-| Backend API | http://localhost:3000 |
+| Backend API    | http://localhost:3000 |
 
 **Default admin credentials:** `admin` / `admin123`
 
@@ -82,7 +82,7 @@ services:
       - postgres_data_prod:/var/lib/postgresql/data
 
   backend:
-    image: ghcr.io/athamour1/orientiring/backend:latest
+    image: ghcr.io/athamour1/oriento/backend:latest
     container_name: orienteering_backend_prod
     restart: always
     depends_on:
@@ -93,7 +93,7 @@ services:
       - ./backend/.env.prod
 
   frontend:
-    image: ghcr.io/athamour1/orientiring/frontend:latest
+    image: ghcr.io/athamour1/oriento/frontend:latest
     container_name: orienteering_frontend_prod
     restart: always
     ports:

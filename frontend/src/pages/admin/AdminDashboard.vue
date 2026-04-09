@@ -307,8 +307,12 @@
               <q-btn
                 v-else
                 unelevated color="positive" icon="rocket_launch" :label="$t('deployEvent')" no-caps
+                :disable="!newEvent.startLat || (!newEvent.returnSameAsStart && !newEvent.returnLat)"
                 @click="createEvent"
-              />
+              >
+                <q-tooltip v-if="!newEvent.startLat">{{ $t('startPointRequired') }}</q-tooltip>
+                <q-tooltip v-else-if="!newEvent.returnSameAsStart && !newEvent.returnLat">{{ $t('returnPointRequired') }}</q-tooltip>
+              </q-btn>
             </q-stepper-navigation>
           </template>
 

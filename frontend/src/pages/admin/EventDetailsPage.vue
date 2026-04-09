@@ -121,6 +121,24 @@
                 <q-btn round elevated color="white" text-color="dark" icon="add" size="xs" @click="editMap && editMap.zoomIn()" />
                 <q-btn round elevated color="white" text-color="dark" icon="remove" size="xs" @click="editMap && editMap.zoomOut()" />
               </div>
+              <div class="edit-layer-btn">
+                <q-btn round elevated icon="layers" color="white" text-color="grey-8" size="xs">
+                  <q-menu anchor="top right" self="bottom right" :offset="[0, 6]" class="layer-menu">
+                    <q-list dense style="min-width:150px; padding: 4px;">
+                      <q-item
+                        v-for="layer in editBaseLayers"
+                        :key="layer.name"
+                        clickable
+                        @click="switchEditBase(layer)"
+                        v-close-popup
+                        :class="['layer-item', { 'layer-item--active': editBaseName === layer.name }]"
+                      >
+                        <q-item-section>{{ layer.label }}</q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                </q-btn>
+              </div>
               <div class="text-caption text-grey-6 edit-map-hint">{{ $t('clickMapToSet') }}</div>
             </div>
             <div>
@@ -198,6 +216,18 @@ let currentBaseTile = null
 let map = null
 let editMap = null
 let editMarker = null
+let editCurrentBaseTile = null
+const editBaseLayers = ref([])
+const editBaseName = ref('topo')
+
+function switchEditBase(layer) {
+  if (!editMap || !layer) return
+  if (editCurrentBaseTile) editMap.removeLayer(editCurrentBaseTile)
+  layer.tile.addTo(editMap)
+  editCurrentBaseTile = layer.tile
+  editBaseName.value = layer.name
+  localStorage.setItem('adminMapLayer', layer.name)
+}
 
 function switchBase(layer) {
   if (!map || !layer) return
@@ -299,9 +329,19 @@ const openEditDialog = async (cp) => {
   editBonusEnabled.value = (cp.bonusForFirst ?? 0) > 0
   editDialog.value = true
   await nextTick()
-  if (editMap) { editMap.remove(); editMap = null; editMarker = null }
+  if (editMap) { editMap.remove(); editMap = null; editMarker = null; editCurrentBaseTile = null }
   editMap = L.map('edit-map', { zoomControl: false }).setView([cp.latitude, cp.longitude], 16)
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(editMap)
+
+  const eName = localStorage.getItem('adminMapLayer') || 'topo'
+  editBaseName.value = eName
+  editBaseLayers.value = [
+    { name: 'street',    label: '🗺️ Street',      tile: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }) },
+    { name: 'topo',      label: '⛰️ Topographic', tile: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17, attribution: '© OpenTopoMap' }) },
+    { name: 'satellite', label: '🛰️ Satellite',   tile: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '© Esri' }) },
+    { name: 'dark',      label: '🌙 Dark',         tile: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19, attribution: '© CartoDB' }) },
+  ]
+  editCurrentBaseTile = editBaseLayers.value.find(l => l.name === eName).tile
+  editCurrentBaseTile.addTo(editMap)
   editMarker = L.marker([cp.latitude, cp.longitude], { draggable: true }).addTo(editMap)
   editMarker.on('dragend', () => {
     const { lat, lng } = editMarker.getLatLng()
@@ -317,7 +357,7 @@ const openEditDialog = async (cp) => {
 }
 
 const onEditDialogHide = () => {
-  if (editMap) { editMap.remove(); editMap = null; editMarker = null }
+  if (editMap) { editMap.remove(); editMap = null; editMarker = null; editCurrentBaseTile = null }
 }
 
 const saveEdit = async () => {
@@ -430,6 +470,12 @@ const confirmDelete = (cp) => {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+.edit-layer-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1000;
 }
 .edit-map-hint {
   position: absolute;

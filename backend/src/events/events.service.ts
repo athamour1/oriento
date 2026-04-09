@@ -98,8 +98,12 @@ export class EventsService {
     }
 
     const result: Record<number, { teamCount: number; checkpointCount: number; scanCount: number }> = {};
-    for (const row of teamCounts) result[row.eventId] = { teamCount: row._count._all, checkpointCount: 0, scanCount: 0 };
+    for (const row of teamCounts) {
+      if (row.eventId == null) continue;
+      result[row.eventId] = { teamCount: row._count._all, checkpointCount: 0, scanCount: 0 };
+    }
     for (const row of checkpointCounts) {
+      if (row.eventId == null) continue;
       if (!result[row.eventId]) result[row.eventId] = { teamCount: 0, checkpointCount: 0, scanCount: 0 };
       result[row.eventId].checkpointCount = row._count._all;
     }

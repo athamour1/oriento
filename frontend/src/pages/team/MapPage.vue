@@ -196,7 +196,7 @@ onMounted(async () => {
     { name: 'dark',      label: '🌙 Dark',         tile: dark },
   ]
 
-  const initialName = localStorage.getItem('mapLayer') || ($q.dark.isActive ? 'dark' : 'street')
+  const initialName = localStorage.getItem('mapLayer') || 'topo'
   activeBaseName.value = initialName
   const initialLayer = baseLayers.value.find(l => l.name === initialName).tile
 

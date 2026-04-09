@@ -367,11 +367,12 @@ const newEventBaseName = ref('topo')
 const newEventStartIcon = L.divIcon({ className: '', html: '<div style="width:14px;height:14px;border-radius:50%;background:#43a047;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>', iconSize: [14, 14], iconAnchor: [7, 7] })
 const newEventReturnIcon = L.divIcon({ className: '', html: '<div style="width:14px;height:14px;border-radius:50%;background:#e53935;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>', iconSize: [14, 14], iconAnchor: [7, 7] })
 
-// Init map when navigating to step 4
+// Reinitialize map every time step 4 is entered — the DOM node is recreated by q-stepper each visit
 watch(wizardStep, async (val) => {
   if (val === 4) {
+    // Destroy previous instance (its container was removed from DOM by stepper)
+    if (newEventMap) { newEventMap.remove(); newEventMap = null; newEventCurrentBase = null }
     await nextTick()
-    if (newEventMap) { newEventMap.invalidateSize(); return }
     newEventMap = L.map('new-event-map', { zoomControl: false }).setView([38.0, 23.7], 11)
     newEventBaseLayers.value = [
       { name: 'street',    label: '🗺️ Street',      tile: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }) },
@@ -384,6 +385,14 @@ watch(wizardStep, async (val) => {
     newEventCurrentBase = newEventBaseLayers.value.find(l => l.name === initName).tile
     newEventCurrentBase.addTo(newEventMap)
     newEventMap.on('click', (e) => placeNewEventMarker(e.latlng, newEvent.value.returnSameAsStart ? 'start' : newPointMode.value))
+    // Restore existing markers if user went back and forward
+    if (newEvent.value.startLat) {
+      newEventStartMarker = L.marker([newEvent.value.startLat, newEvent.value.startLng], { icon: newEventStartIcon }).addTo(newEventMap)
+      newEventMap.setView([newEvent.value.startLat, newEvent.value.startLng], 14)
+    }
+    if (!newEvent.value.returnSameAsStart && newEvent.value.returnLat) {
+      newEventReturnMarker = L.marker([newEvent.value.returnLat, newEvent.value.returnLng], { icon: newEventReturnIcon }).addTo(newEventMap)
+    }
     setTimeout(() => newEventMap.invalidateSize(), 150)
   }
 })

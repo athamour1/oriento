@@ -35,27 +35,22 @@
 
     <!-- Checkpoints Table -->
     <q-card flat bordered class="shadow-2">
-      <q-table :rows="checkpoints" :columns="columns" row-key="id" flat class="admin-table" :loading="tableLoading">
-        <template v-slot:loading>
-          <q-inner-loading showing>
-            <div class="q-pa-md full-width">
-              <q-skeleton v-for="n in 5" :key="n" type="QBtn" height="48px" class="q-mb-sm" square />
-            </div>
-          </q-inner-loading>
+      <q-table :rows="tableLoading ? skeletonRows : checkpoints" :columns="columns" row-key="id" flat class="admin-table">
+        <template v-slot:body="props">
+          <q-tr :props="props">
+            <q-td v-for="col in props.cols" :key="col.name" :props="props">
+              <q-skeleton v-if="tableLoading" type="text" />
+              <template v-else-if="col.name === 'actions'">
+                <q-btn flat round color="primary" dense icon="qr_code" @click="openQrPreview(props.row)"><q-tooltip>{{ $t('viewQrCode') }}</q-tooltip></q-btn>
+                <q-btn flat round color="secondary" dense icon="edit" class="q-ml-xs" @click="openEditDialog(props.row)"><q-tooltip>{{ $t('edit') }}</q-tooltip></q-btn>
+                <q-btn flat round color="negative" dense icon="delete" class="q-ml-xs" @click="confirmDelete(props.row)" />
+              </template>
+              <template v-else>{{ col.value }}</template>
+            </q-td>
+          </q-tr>
         </template>
         <template v-slot:top-right>
           <q-btn color="secondary" icon="archive" :label="$t('downloadAllQr')" unelevated no-caps @click="downloadAllQr" v-if="checkpoints.length > 0" />
-        </template>
-        <template v-slot:body-cell-actions="props">
-          <q-td :props="props">
-            <q-btn flat round color="primary" dense icon="qr_code" @click="openQrPreview(props.row)">
-              <q-tooltip>{{ $t('viewQrCode') }}</q-tooltip>
-            </q-btn>
-            <q-btn flat round color="secondary" dense icon="edit" class="q-ml-xs" @click="openEditDialog(props.row)">
-              <q-tooltip>{{ $t('edit') }}</q-tooltip>
-            </q-btn>
-            <q-btn flat round color="negative" dense icon="delete" class="q-ml-xs" @click="confirmDelete(props.row)" />
-          </q-td>
         </template>
       </q-table>
     </q-card>
@@ -180,6 +175,7 @@ const { t } = useI18n()
 const eventId = route.params.eventId
 const checkpoints = ref([])
 const tableLoading = ref(true)
+const skeletonRows = Array.from({ length: 5 }, (_, i) => ({ id: i }))
 const showDialog = ref(false)
 const previewDialog = ref(false)
 const editDialog = ref(false)

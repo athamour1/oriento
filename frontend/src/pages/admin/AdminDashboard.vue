@@ -6,6 +6,49 @@
       <q-btn color="primary" icon="add" :label="$t('newEvent')" unelevated no-caps @click="showNewEventDialog = true" />
     </div>
 
+    <!-- Global stats -->
+    <div class="row q-col-gutter-md q-mb-lg">
+      <div class="col-6 col-sm-3">
+        <q-card flat bordered class="stat-card text-center q-pa-md">
+          <div class="stat-value text-primary">{{ events.length }}</div>
+          <div class="stat-label">{{ $t('totalEvents') }}</div>
+        </q-card>
+      </div>
+      <div class="col-6 col-sm-3">
+        <q-card flat bordered class="stat-card text-center q-pa-md">
+          <div class="stat-value text-positive">{{ events.filter(e => e.isActive).length }}</div>
+          <div class="stat-label">{{ $t('liveNow') }}</div>
+        </q-card>
+      </div>
+      <div class="col-6 col-sm-3">
+        <q-card flat bordered class="stat-card text-center q-pa-md">
+          <div class="stat-value text-secondary">{{ totalTeams }}</div>
+          <div class="stat-label">{{ $t('teams') }}</div>
+        </q-card>
+      </div>
+      <div class="col-6 col-sm-3">
+        <q-card flat bordered class="stat-card text-center q-pa-md">
+          <div class="stat-value text-purple">{{ totalScans }}</div>
+          <div class="stat-label">{{ $t('scans') }}</div>
+        </q-card>
+      </div>
+    </div>
+
+    <!-- Next upcoming event -->
+    <q-card v-if="nextEvent" flat bordered class="q-mb-lg next-event-card" @click="$router.push(`/admin/events/${nextEvent.id}`)" style="cursor:pointer;">
+      <q-card-section class="row items-center q-gutter-md">
+        <q-icon name="event" color="primary" size="2rem" />
+        <div class="col">
+          <div class="text-caption text-grey-6 text-uppercase" style="letter-spacing:0.08em;">{{ $t('nextEvent') }}</div>
+          <div class="text-subtitle1 text-weight-bold">{{ nextEvent.name }}</div>
+          <div class="text-caption text-primary">
+            <q-icon name="schedule" size="12px" class="q-mr-xs" />{{ formatDateTime(nextEvent.startTime) }}
+          </div>
+        </div>
+        <q-btn flat round icon="arrow_forward" color="primary" />
+      </q-card-section>
+    </q-card>
+
     <!-- Skeleton cards while loading -->
     <div v-if="!store.loaded" class="row q-col-gutter-md">
       <div v-for="i in 3" :key="i" class="col-12 col-sm-6 col-md-4">
@@ -290,6 +333,15 @@ const { t } = useI18n()
 const store = useEventsStore()
 const events = computed(() => store.events)
 const eventStats = reactive({})
+
+const totalTeams = computed(() => Object.values(eventStats).reduce((s, e) => s + (e.teamCount ?? 0), 0))
+const totalScans = computed(() => Object.values(eventStats).reduce((s, e) => s + (e.scanCount ?? 0), 0))
+const nextEvent = computed(() => {
+  const now = Date.now()
+  return events.value
+    .filter(e => e.startTime && new Date(e.startTime).getTime() > now)
+    .sort((a, b) => new Date(a.startTime) - new Date(b.startTime))[0] ?? null
+})
 const showNewEventDialog = ref(false)
 const wizardStep = ref(1)
 const stepper = ref(null)
@@ -464,6 +516,31 @@ const confirmDeleteEvent = (eventRow) => {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+.stat-card {
+  border-radius: 12px;
+}
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+.stat-label {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.next-event-card {
+  border-radius: 14px;
+  border-left: 4px solid var(--q-primary) !important;
+  transition: box-shadow 0.2s;
+}
+.next-event-card:hover {
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.15) !important;
+}
+.text-purple { color: #8e5add; }
 .new-event-zoom-btns {
   position: absolute;
   top: 8px;

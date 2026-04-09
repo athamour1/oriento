@@ -25,6 +25,12 @@ export class EventsController {
   }
 
   @Roles(Role.ADMIN)
+  @Get('dashboard-stats')
+  getDashboardStats() {
+    return this.eventsService.getDashboardStats();
+  }
+
+  @Roles(Role.ADMIN)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.eventsService.findOne(+id);
@@ -34,12 +40,6 @@ export class EventsController {
   @Put(':id')
   update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
     return this.eventsService.update(+id, updateEventDto);
-  }
-
-  @Roles(Role.ADMIN)
-  @Get('dashboard-stats')
-  getDashboardStats() {
-    return this.eventsService.getDashboardStats();
   }
 
   @Roles(Role.ADMIN)

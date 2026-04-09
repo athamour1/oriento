@@ -8,30 +8,28 @@
 
     <q-card flat bordered class="shadow-2">
       <q-table
-        :rows="events"
+        :rows="!store.loaded ? skeletonRows : events"
         :columns="columns"
         row-key="id"
         flat
         class="admin-table"
-        :loading="!store.loaded"
       >
-        <template v-slot:loading>
-          <q-inner-loading showing>
-            <div class="q-pa-md full-width">
-              <q-skeleton v-for="n in 4" :key="n" type="QBtn" height="48px" class="q-mb-sm" square />
-            </div>
-          </q-inner-loading>
-        </template>
-        <template v-slot:body-cell-actions="props">
-          <q-td :props="props">
-            <q-btn flat round color="primary" dense icon="settings" @click="$router.push(`/admin/events/${props.row.id}`)">
-              <q-tooltip>{{ $t('manage') }}</q-tooltip>
-            </q-btn>
-            <q-btn flat round color="secondary" dense icon="share" class="q-ml-xs" @click="copyLeaderboardLink(props.row.id)">
-              <q-tooltip>{{ $t('copyPublicLink') }}</q-tooltip>
-            </q-btn>
-            <q-btn flat round color="negative" dense icon="delete" class="q-ml-xs" @click="confirmDeleteEvent(props.row)" />
-          </q-td>
+        <template v-slot:body="props">
+          <q-tr :props="props">
+            <q-td v-for="col in props.cols" :key="col.name" :props="props">
+              <q-skeleton v-if="!store.loaded" type="text" />
+              <template v-else-if="col.name === 'actions'">
+                <q-btn flat round color="primary" dense icon="settings" @click="$router.push(`/admin/events/${props.row.id}`)">
+                  <q-tooltip>{{ $t('manage') }}</q-tooltip>
+                </q-btn>
+                <q-btn flat round color="secondary" dense icon="share" class="q-ml-xs" @click="copyLeaderboardLink(props.row.id)">
+                  <q-tooltip>{{ $t('copyPublicLink') }}</q-tooltip>
+                </q-btn>
+                <q-btn flat round color="negative" dense icon="delete" class="q-ml-xs" @click="confirmDeleteEvent(props.row)" />
+              </template>
+              <template v-else>{{ col.value }}</template>
+            </q-td>
+          </q-tr>
         </template>
       </q-table>
     </q-card>
@@ -165,6 +163,7 @@ const $q = useQuasar()
 const { t } = useI18n()
 const store = useEventsStore()
 const events = computed(() => store.events)
+const skeletonRows = Array.from({ length: 4 }, (_, i) => ({ id: i }))
 const showNewEventDialog = ref(false)
 const defaultEvent = () => ({ name: '', description: '', isActive: false, showTeamLocation: true, startTime: null, endTime: null, firstFinishBonus: 0, language: 'en-US' })
 

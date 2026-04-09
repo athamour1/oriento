@@ -7,19 +7,18 @@
     </div>
 
     <q-card flat bordered class="shadow-2">
-      <q-table :rows="teams" :columns="columns" row-key="id" flat class="admin-table" :loading="tableLoading">
-        <template v-slot:loading>
-          <q-inner-loading showing>
-            <div class="q-pa-md full-width">
-              <q-skeleton v-for="n in 4" :key="n" type="QBtn" height="48px" class="q-mb-sm" square />
-            </div>
-          </q-inner-loading>
-        </template>
-        <template v-slot:body-cell-actions="props">
-          <q-td :props="props">
-            <q-btn flat round color="secondary" dense icon="edit" class="q-mr-xs" @click="openEdit(props.row)" />
-            <q-btn flat round color="negative" dense icon="delete" @click="confirmDelete(props.row)" />
-          </q-td>
+      <q-table :rows="tableLoading ? skeletonRows : teams" :columns="columns" row-key="id" flat class="admin-table">
+        <template v-slot:body="props">
+          <q-tr :props="props">
+            <q-td v-for="col in props.cols" :key="col.name" :props="props">
+              <q-skeleton v-if="tableLoading" type="text" />
+              <template v-else-if="col.name === 'actions'">
+                <q-btn flat round color="secondary" dense icon="edit" class="q-mr-xs" @click="openEdit(props.row)" />
+                <q-btn flat round color="negative" dense icon="delete" @click="confirmDelete(props.row)" />
+              </template>
+              <template v-else>{{ col.value }}</template>
+            </q-td>
+          </q-tr>
         </template>
       </q-table>
     </q-card>
@@ -115,6 +114,7 @@ const eventId = route.params.eventId
 
 const teams = ref([])
 const tableLoading = ref(true)
+const skeletonRows = Array.from({ length: 4 }, (_, i) => ({ id: i }))
 const showDialog = ref(false)
 const showCreatePwd = ref(false)
 const form = ref({ username: '', password: '' })

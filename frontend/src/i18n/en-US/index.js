@@ -224,5 +224,9 @@ export default {
   somethingWentWrong: 'Something went wrong',
   errorDescription: 'An unexpected error occurred. Try reloading the page.',
   reloadPage: 'Reload Page',
-  errorDetails: 'Error Details'
+  errorDetails: 'Error Details',
+  manage: 'Manage',
+  basics: 'Basics',
+  edit: 'Edit',
+  next: 'Next'
 }

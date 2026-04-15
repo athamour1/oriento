@@ -1,12 +1,16 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
+import { EventsGateway } from './events.gateway';
 
 @Injectable()
 export class EventsScheduler {
   private readonly logger = new Logger(EventsScheduler.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => EventsGateway)) private gateway: EventsGateway,
+  ) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
   async autoActivateEvents() {
@@ -31,6 +35,7 @@ export class EventsScheduler {
         where: { id: event.id },
         data: { isActive: true },
       });
+      this.gateway.emitEventActivated(event.id);
       this.logger.log(`Auto-activated event "${event.name}" (id=${event.id})`);
     }
   }

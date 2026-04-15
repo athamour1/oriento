@@ -92,4 +92,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }) {
     this.server.to(`event:${eventId}`).emit('location:updated', { eventId, ...payload });
   }
+
+  emitEventActivated(eventId: number) {
+    this.server.to(`event:${eventId}`).emit('event:activated', { eventId });
+  }
 }

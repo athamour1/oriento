@@ -206,5 +206,12 @@ export default {
   eventStartsIn: 'Event starts in',
   waitingForOrganizer: 'Waiting for the organizer to start the event...',
   scheduledEvent: 'Scheduled',
-  pendingActivation: 'Pending activation'
+  pendingActivation: 'Pending activation',
+  importCsv: 'Import CSV',
+  csvFormatHint: 'Upload a CSV file with columns: username, password',
+  selectCsvFile: 'Select CSV file',
+  preview: 'Preview',
+  importTeams: 'Import Teams',
+  importResults: 'Results',
+  teamsImported: '{count} team(s) imported successfully'
 }

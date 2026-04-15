@@ -3,6 +3,7 @@
     <div class="row items-center q-mb-xl">
       <div class="text-h5 text-weight-bold tracking-tight">{{ $t('teamManagement') }}</div>
       <q-space />
+      <q-btn outline color="primary" icon="upload_file" :label="$t('importCsv')" no-caps class="q-mr-sm" @click="showImportDialog = true" />
       <q-btn color="primary" icon="person_add" :label="$t('registerTeam')" unelevated no-caps @click="showDialog = true" />
     </div>
 
@@ -94,6 +95,69 @@
               <q-btn unelevated :label="$t('saveChanges')" color="primary" type="submit" no-caps />
             </div>
           </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+
+    <!-- CSV Import Modal -->
+    <q-dialog v-model="showImportDialog" @hide="onImportHide">
+      <q-card style="min-width: 480px" class="q-pa-sm">
+        <q-card-section>
+          <div class="text-h6 text-weight-bold tracking-tight">{{ $t('importCsv') }}</div>
+          <div class="text-caption text-grey-7">{{ $t('csvFormatHint') }}</div>
+        </q-card-section>
+        <q-card-section class="q-pt-none">
+          <!-- File picker -->
+          <q-file
+            v-model="csvFile"
+            :label="$t('selectCsvFile')"
+            outlined
+            accept=".csv"
+            @update:model-value="parseCsv"
+          >
+            <template v-slot:prepend>
+              <q-icon name="attach_file" />
+            </template>
+          </q-file>
+
+          <!-- Preview table -->
+          <div v-if="csvRows.length" class="q-mt-md">
+            <div class="text-subtitle2 q-mb-xs">{{ $t('preview') }} ({{ csvRows.length }} {{ $t('teams').toLowerCase() }})</div>
+            <q-table
+              :rows="csvRows"
+              :columns="csvColumns"
+              row-key="username"
+              flat
+              bordered
+              dense
+              :rows-per-page-options="[0]"
+              hide-bottom
+              style="max-height: 280px; overflow: auto;"
+            />
+          </div>
+
+          <!-- Import results -->
+          <div v-if="importResults.length" class="q-mt-md">
+            <div class="text-subtitle2 q-mb-xs">{{ $t('importResults') }}</div>
+            <div v-for="r in importResults" :key="r.username" class="row items-center q-py-xs" style="font-size: 13px;">
+              <q-icon :name="r.success ? 'check_circle' : 'cancel'" :color="r.success ? 'positive' : 'negative'" size="18px" class="q-mr-xs" />
+              <span class="text-weight-medium">{{ r.username }}</span>
+              <span v-if="r.error" class="text-grey-6 q-ml-xs">— {{ r.error }}</span>
+            </div>
+          </div>
+
+          <div class="row justify-end q-mt-lg q-gutter-sm">
+            <q-btn flat :label="$t('cancel')" color="grey-7" v-close-popup no-caps />
+            <q-btn
+              unelevated
+              :label="$t('importTeams')"
+              color="primary"
+              no-caps
+              :disable="csvRows.length === 0 || importing"
+              :loading="importing"
+              @click="doImport"
+            />
+          </div>
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -241,6 +305,65 @@ const createTeam = async () => {
       $q.notify({ type: 'negative', message: e.response?.data?.message || t('failedToSaveSettings'), position: 'top-right', timeout: 2500 })
     }
   }
+}
+
+// ─── CSV Import ───────────────────────────────────────────────────────────
+const showImportDialog = ref(false)
+const csvFile = ref(null)
+const csvRows = ref([])
+const importing = ref(false)
+const importResults = ref([])
+const csvColumns = [
+  { name: 'username', label: 'Username', field: 'username', align: 'left' },
+  { name: 'password', label: 'Password', field: 'password', align: 'left' },
+]
+
+const parseCsv = (file) => {
+  csvRows.value = []
+  importResults.value = []
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    const text = e.target.result
+    const lines = text.split(/\r?\n/).filter(l => l.trim())
+    const rows = []
+    for (const line of lines) {
+      const cols = line.split(',').map(c => c.trim())
+      if (cols.length < 2) continue
+      // Skip header row
+      if (cols[0].toLowerCase() === 'username' && cols[1].toLowerCase() === 'password') continue
+      if (cols[0] && cols[1]) {
+        rows.push({ username: cols[0], password: cols[1] })
+      }
+    }
+    csvRows.value = rows
+  }
+  reader.readAsText(file)
+}
+
+const doImport = async () => {
+  importing.value = true
+  importResults.value = []
+  try {
+    const res = await api.post(`/admin/events/${eventId}/teams/import`, { teams: csvRows.value })
+    importResults.value = res.data
+    const successCount = res.data.filter(r => r.success).length
+    if (successCount > 0) {
+      $q.notify({ type: 'positive', message: t('teamsImported', { count: successCount }), position: 'top-right', timeout: 2500 })
+      fetchTeams()
+    }
+  } catch (e) {
+    $q.notify({ type: 'negative', message: e.response?.data?.message || t('failedToSaveSettings'), position: 'top-right', timeout: 2500 })
+  } finally {
+    importing.value = false
+  }
+}
+
+const onImportHide = () => {
+  csvFile.value = null
+  csvRows.value = []
+  importResults.value = []
+  importing.value = false
 }
 
 const confirmDelete = (team) => {

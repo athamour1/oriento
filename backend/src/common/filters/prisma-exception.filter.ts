@@ -31,9 +31,10 @@ export class PrismaExceptionFilter implements ExceptionFilter {
         message = 'Invalid relation data';
         break;
       default:
-        this.logger.error(`Unhandled Prisma error ${exception.code}: ${exception.message}`);
+        this.logger.error({ msg: 'Unhandled Prisma error', code: exception.code, detail: exception.message });
     }
 
+    this.logger.warn({ msg: 'Prisma error', code: exception.code, statusCode: status });
     response.status(status).json({ statusCode: status, message });
   }
 }

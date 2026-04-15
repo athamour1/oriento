@@ -224,5 +224,9 @@ export default {
   somethingWentWrong: 'Κάτι πήγε στραβά',
   errorDescription: 'Παρουσιάστηκε απροσδόκητο σφάλμα. Δοκιμάστε να φορτώσετε ξανά τη σελίδα.',
   reloadPage: 'Επαναφόρτωση Σελίδας',
-  errorDetails: 'Λεπτομέρειες Σφάλματος'
+  errorDetails: 'Λεπτομέρειες Σφάλματος',
+  manage: 'Διαχείριση',
+  basics: 'Βασικά',
+  edit: 'Επεξεργασία',
+  next: 'Επόμενο'
 }

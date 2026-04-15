@@ -1,5 +1,5 @@
 import { WebSocketGateway, WebSocketServer, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, MessageBody, ConnectedSocket } from '@nestjs/websockets';
-import { forwardRef, Inject } from '@nestjs/common';
+import { forwardRef, Inject, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Server, Socket } from 'socket.io';
 import { EventsService } from './events.service';
@@ -13,6 +13,8 @@ const wsOrigins = process.env.CORS_ORIGIN
   namespace: '/',
 })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  private readonly logger = new Logger(EventsGateway.name);
+
   @WebSocketServer()
   server: Server;
 
@@ -33,11 +35,11 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleConnection(client: Socket) {
-    void client;
+    this.logger.log({ msg: 'Client connected', clientId: client.id });
   }
 
   handleDisconnect(client: Socket) {
-    void client;
+    this.logger.log({ msg: 'Client disconnected', clientId: client.id });
   }
 
   @SubscribeMessage('join')

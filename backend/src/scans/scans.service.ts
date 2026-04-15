@@ -1,9 +1,11 @@
-import { Injectable, BadRequestException, ConflictException } from '@nestjs/common';
+import { Injectable, BadRequestException, ConflictException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { EventsGateway } from '../events/events.gateway';
 
 @Injectable()
 export class ScansService {
+  private readonly logger = new Logger(ScansService.name);
+
   constructor(
     private prisma: PrismaService,
     private gateway: EventsGateway,
@@ -17,6 +19,7 @@ export class ScansService {
     });
 
     if (!checkpoint) {
+      this.logger.warn({ msg: 'Invalid QR scan', teamId });
       throw new BadRequestException('Invalid QR code');
     }
 
@@ -43,6 +46,7 @@ export class ScansService {
       where: { teamId_checkpointId: { teamId, checkpointId: checkpoint.id } },
     });
     if (existingScan) {
+      this.logger.warn({ msg: 'Duplicate scan attempt', teamId, checkpointId: checkpoint.id });
       throw new ConflictException('Checkpoint already scanned by your team');
     }
 
@@ -58,6 +62,7 @@ export class ScansService {
     });
 
     const result = { ...scan, isFirst, bonusAwarded: isFirst ? checkpoint.bonusForFirst : 0 };
+    this.logger.log({ msg: 'Scan recorded', teamId, checkpointId: checkpoint.id, checkpointName: checkpoint.name, isFirst });
 
     // 6. Check if this team just finished all checkpoints first
     let isFirstFinisher = false;

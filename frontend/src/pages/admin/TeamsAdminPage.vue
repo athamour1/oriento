@@ -149,6 +149,7 @@
                 :placeholder="'username,password\nteam1,pass123\nteam2,secret456'"
                 rows="6"
                 autogrow
+                class="import-textarea"
                 style="font-family: monospace; font-size: 13px;"
               />
 
@@ -466,4 +467,5 @@ const confirmDelete = (team) => {
 <style scoped>
 .admin-page { max-width: 900px; margin: 0 auto; }
 .tracking-tight { letter-spacing: -0.02em; }
+.import-textarea :deep(.q-field__control) { border-radius: 8px; }
 </style>

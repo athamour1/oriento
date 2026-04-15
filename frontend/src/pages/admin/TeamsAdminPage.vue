@@ -467,5 +467,7 @@ const confirmDelete = (team) => {
 <style scoped>
 .admin-page { max-width: 900px; margin: 0 auto; }
 .tracking-tight { letter-spacing: -0.02em; }
-.import-textarea :deep(.q-field__control) { border-radius: 8px; }
+</style>
+<style>
+.import-textarea .q-field__control { border-radius: 8px !important; }
 </style>

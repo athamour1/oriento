@@ -4,8 +4,12 @@ import { JwtService } from '@nestjs/jwt';
 import { Server, Socket } from 'socket.io';
 import { EventsService } from './events.service';
 
+const wsOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim())
+  : [];
+
 @WebSocketGateway({
-  cors: { origin: process.env.CORS_ORIGIN?.split(',').map((o) => o.trim()) ?? '*', credentials: true },
+  cors: { origin: wsOrigins, credentials: true },
   namespace: '/',
 })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {

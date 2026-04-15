@@ -213,5 +213,12 @@ export default {
   preview: 'Preview',
   importTeams: 'Import Teams',
   importResults: 'Results',
-  teamsImported: '{count} team(s) imported successfully'
+  teamsImported: '{count} team(s) imported successfully',
+  input: 'Input',
+  uploadFile: 'Upload File',
+  pasteText: 'Paste Text',
+  parseData: 'Parse Data',
+  back: 'Back',
+  importMore: 'Import More',
+  noValidRows: 'No valid rows found. Use format: username,password'
 }

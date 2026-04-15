@@ -213,5 +213,12 @@ export default {
   preview: 'Προεπισκόπηση',
   importTeams: 'Εισαγωγή Ομάδων',
   importResults: 'Αποτελέσματα',
-  teamsImported: '{count} ομάδ(ες) εισήχθησαν επιτυχώς'
+  teamsImported: '{count} ομάδ(ες) εισήχθησαν επιτυχώς',
+  input: 'Εισαγωγή',
+  uploadFile: 'Μεταφόρτωση Αρχείου',
+  pasteText: 'Επικόλληση Κειμένου',
+  parseData: 'Ανάλυση Δεδομένων',
+  back: 'Πίσω',
+  importMore: 'Εισαγωγή Περισσότερων',
+  noValidRows: 'Δεν βρέθηκαν έγκυρες γραμμές. Χρησιμοποιήστε μορφή: username,password'
 }

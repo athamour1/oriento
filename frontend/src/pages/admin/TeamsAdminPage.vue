@@ -100,64 +100,119 @@
     </q-dialog>
 
     <!-- CSV Import Modal -->
-    <q-dialog v-model="showImportDialog" @hide="onImportHide">
-      <q-card style="min-width: 480px" class="q-pa-sm">
+    <q-dialog v-model="showImportDialog" @hide="onImportHide" persistent>
+      <q-card style="min-width: 520px; max-width: 600px;" class="q-pa-sm">
         <q-card-section>
-          <div class="text-h6 text-weight-bold tracking-tight">{{ $t('importCsv') }}</div>
-          <div class="text-caption text-grey-7">{{ $t('csvFormatHint') }}</div>
+          <div class="text-h6 text-weight-bold tracking-tight">{{ $t('importTeams') }}</div>
         </q-card-section>
-        <q-card-section class="q-pt-none">
-          <!-- File picker -->
-          <q-file
-            v-model="csvFile"
-            :label="$t('selectCsvFile')"
-            outlined
-            accept=".csv"
-            @update:model-value="parseCsv"
-          >
-            <template v-slot:prepend>
-              <q-icon name="attach_file" />
-            </template>
-          </q-file>
 
-          <!-- Preview table -->
-          <div v-if="csvRows.length" class="q-mt-md">
-            <div class="text-subtitle2 q-mb-xs">{{ $t('preview') }} ({{ csvRows.length }} {{ $t('teams').toLowerCase() }})</div>
-            <q-table
-              :rows="csvRows"
-              :columns="csvColumns"
-              row-key="username"
-              flat
-              bordered
-              dense
-              :rows-per-page-options="[0]"
-              hide-bottom
-              style="max-height: 280px; overflow: auto;"
-            />
-          </div>
+        <!-- Step indicator -->
+        <q-card-section class="q-pt-none q-pb-sm">
+          <q-stepper v-model="importStep" flat animated header-nav alternative-labels color="primary" style="box-shadow:none;">
+            <q-step :name="1" :title="$t('input')" icon="edit_note" :done="importStep > 1">
+              <div class="text-caption text-grey-7 q-mb-md">{{ $t('csvFormatHint') }}</div>
 
-          <!-- Import results -->
-          <div v-if="importResults.length" class="q-mt-md">
-            <div class="text-subtitle2 q-mb-xs">{{ $t('importResults') }}</div>
-            <div v-for="r in importResults" :key="r.username" class="row items-center q-py-xs" style="font-size: 13px;">
-              <q-icon :name="r.success ? 'check_circle' : 'cancel'" :color="r.success ? 'positive' : 'negative'" size="18px" class="q-mr-xs" />
-              <span class="text-weight-medium">{{ r.username }}</span>
-              <span v-if="r.error" class="text-grey-6 q-ml-xs">— {{ r.error }}</span>
-            </div>
-          </div>
+              <!-- Toggle: File or Paste -->
+              <q-btn-toggle
+                v-model="inputMode"
+                spread
+                no-caps
+                unelevated
+                toggle-color="primary"
+                class="q-mb-md"
+                :options="[
+                  { label: $t('uploadFile'), value: 'file', icon: 'upload_file' },
+                  { label: $t('pasteText'), value: 'paste', icon: 'content_paste' }
+                ]"
+              />
 
-          <div class="row justify-end q-mt-lg q-gutter-sm">
-            <q-btn flat :label="$t('cancel')" color="grey-7" v-close-popup no-caps />
-            <q-btn
-              unelevated
-              :label="$t('importTeams')"
-              color="primary"
-              no-caps
-              :disable="csvRows.length === 0 || importing"
-              :loading="importing"
-              @click="doImport"
-            />
-          </div>
+              <!-- File upload -->
+              <q-file
+                v-if="inputMode === 'file'"
+                v-model="csvFile"
+                :label="$t('selectCsvFile')"
+                outlined
+                accept=".csv"
+                @update:model-value="onFileSelected"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="attach_file" />
+                </template>
+              </q-file>
+
+              <!-- Text paste -->
+              <q-input
+                v-if="inputMode === 'paste'"
+                v-model="pasteText"
+                type="textarea"
+                outlined
+                :placeholder="'username,password\nteam1,pass123\nteam2,secret456'"
+                rows="6"
+                autogrow
+                style="font-family: monospace; font-size: 13px;"
+              />
+
+              <q-stepper-navigation class="row justify-end q-gutter-sm q-mt-sm">
+                <q-btn flat :label="$t('cancel')" color="grey-7" no-caps @click="showImportDialog = false" />
+                <q-btn
+                  unelevated
+                  :label="$t('parseData')"
+                  color="primary"
+                  no-caps
+                  icon-right="chevron_right"
+                  :disable="inputMode === 'file' ? !csvFile : !pasteText.trim()"
+                  @click="parseAndNext"
+                />
+              </q-stepper-navigation>
+            </q-step>
+
+            <q-step :name="2" :title="$t('preview')" icon="table_chart" :done="importStep > 2">
+              <div v-if="parseError" class="text-negative q-mb-md">
+                <q-icon name="error" class="q-mr-xs" />{{ parseError }}
+              </div>
+
+              <div v-if="csvRows.length" class="q-mb-sm">
+                <div class="text-subtitle2 q-mb-xs">{{ csvRows.length }} {{ $t('teams').toLowerCase() }}</div>
+                <q-table
+                  :rows="csvRows"
+                  :columns="csvColumns"
+                  row-key="username"
+                  flat
+                  bordered
+                  dense
+                  :rows-per-page-options="[0]"
+                  hide-bottom
+                  style="max-height: 300px; overflow: auto;"
+                />
+              </div>
+
+              <q-stepper-navigation class="row justify-end q-gutter-sm q-mt-sm">
+                <q-btn flat :label="$t('back')" color="grey-7" no-caps @click="importStep = 1" />
+                <q-btn
+                  unelevated
+                  :label="$t('importTeams')"
+                  color="primary"
+                  no-caps
+                  icon-right="cloud_upload"
+                  :disable="csvRows.length === 0"
+                  @click="doImport"
+                />
+              </q-stepper-navigation>
+            </q-step>
+
+            <q-step :name="3" :title="$t('importResults')" icon="check_circle">
+              <div v-for="r in importResults" :key="r.username" class="row items-center q-py-xs" style="font-size: 13px;">
+                <q-icon :name="r.success ? 'check_circle' : 'cancel'" :color="r.success ? 'positive' : 'negative'" size="18px" class="q-mr-xs" />
+                <span class="text-weight-medium">{{ r.username }}</span>
+                <span v-if="r.error" class="text-grey-6 q-ml-xs">— {{ r.error }}</span>
+              </div>
+
+              <q-stepper-navigation class="row justify-end q-gutter-sm q-mt-md">
+                <q-btn flat :label="$t('importMore')" color="grey-7" no-caps @click="resetImport" />
+                <q-btn unelevated :label="$t('close')" color="primary" no-caps @click="showImportDialog = false" />
+              </q-stepper-navigation>
+            </q-step>
+          </q-stepper>
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -309,8 +364,12 @@ const createTeam = async () => {
 
 // ─── CSV Import ───────────────────────────────────────────────────────────
 const showImportDialog = ref(false)
+const importStep = ref(1)
+const inputMode = ref('paste')
 const csvFile = ref(null)
+const pasteText = ref('')
 const csvRows = ref([])
+const parseError = ref('')
 const importing = ref(false)
 const importResults = ref([])
 const csvColumns = [
@@ -318,27 +377,42 @@ const csvColumns = [
   { name: 'password', label: 'Password', field: 'password', align: 'left' },
 ]
 
-const parseCsv = (file) => {
-  csvRows.value = []
-  importResults.value = []
+function parseTextToRows(text) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim())
+  const rows = []
+  for (const line of lines) {
+    // Support comma, semicolon, or tab as delimiter
+    const cols = line.split(/[,;\t]/).map(c => c.trim())
+    if (cols.length < 2) continue
+    if (cols[0].toLowerCase() === 'username' && cols[1].toLowerCase() === 'password') continue
+    if (cols[0] && cols[1]) {
+      rows.push({ username: cols[0], password: cols[1] })
+    }
+  }
+  return rows
+}
+
+const onFileSelected = (file) => {
   if (!file) return
   const reader = new FileReader()
-  reader.onload = (e) => {
-    const text = e.target.result
-    const lines = text.split(/\r?\n/).filter(l => l.trim())
-    const rows = []
-    for (const line of lines) {
-      const cols = line.split(',').map(c => c.trim())
-      if (cols.length < 2) continue
-      // Skip header row
-      if (cols[0].toLowerCase() === 'username' && cols[1].toLowerCase() === 'password') continue
-      if (cols[0] && cols[1]) {
-        rows.push({ username: cols[0], password: cols[1] })
-      }
-    }
-    csvRows.value = rows
-  }
+  reader.onload = (e) => { pasteText.value = e.target.result }
   reader.readAsText(file)
+}
+
+const parseAndNext = () => {
+  parseError.value = ''
+  const text = inputMode.value === 'file' && csvFile.value
+    ? pasteText.value
+    : pasteText.value
+  const rows = parseTextToRows(text)
+  if (rows.length === 0) {
+    parseError.value = t('noValidRows')
+    importStep.value = 2
+    csvRows.value = []
+    return
+  }
+  csvRows.value = rows
+  importStep.value = 2
 }
 
 const doImport = async () => {
@@ -347,6 +421,7 @@ const doImport = async () => {
   try {
     const res = await api.post(`/admin/events/${eventId}/teams/import`, { teams: csvRows.value })
     importResults.value = res.data
+    importStep.value = 3
     const successCount = res.data.filter(r => r.success).length
     if (successCount > 0) {
       $q.notify({ type: 'positive', message: t('teamsImported', { count: successCount }), position: 'top-right', timeout: 2500 })
@@ -359,10 +434,17 @@ const doImport = async () => {
   }
 }
 
-const onImportHide = () => {
+const resetImport = () => {
+  importStep.value = 1
   csvFile.value = null
+  pasteText.value = ''
   csvRows.value = []
+  parseError.value = ''
   importResults.value = []
+}
+
+const onImportHide = () => {
+  resetImport()
   importing.value = false
 }
 

@@ -39,6 +39,32 @@ export class UsersController {
     return { id: user.id, username: user.username };
   }
 
+  @Post('import')
+  async importTeams(
+    @Param('eventId') eventId: string,
+    @Body() body: { teams: { username: string; password: string }[] },
+  ) {
+    const results: { username: string; success: boolean; error?: string }[] = [];
+    for (const team of body.teams) {
+      if (!team.username || !team.password) {
+        results.push({ username: team.username || '', success: false, error: 'Missing username or password' });
+        continue;
+      }
+      try {
+        const existing = await this.usersService.findByUsername(team.username);
+        if (existing) {
+          results.push({ username: team.username, success: false, error: 'Username already taken' });
+          continue;
+        }
+        await this.usersService.createTeam(team.username, team.password, +eventId);
+        results.push({ username: team.username, success: true });
+      } catch {
+        results.push({ username: team.username, success: false, error: 'Creation failed' });
+      }
+    }
+    return results;
+  }
+
   @Put(':id')
   async updateTeam(@Param('id') id: string, @Body() body: { username?: string; password?: string }) {
     if (body.username) {

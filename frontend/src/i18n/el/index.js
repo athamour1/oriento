@@ -206,5 +206,12 @@ export default {
   eventStartsIn: 'Το παιχνίδι ξεκινά σε',
   waitingForOrganizer: 'Αναμονή για τον διοργανωτή να ξεκινήσει το παιχνίδι...',
   scheduledEvent: 'Προγραμματισμένο',
-  pendingActivation: 'Αναμονή ενεργοποίησης'
+  pendingActivation: 'Αναμονή ενεργοποίησης',
+  importCsv: 'Εισαγωγή CSV',
+  csvFormatHint: 'Ανεβάστε αρχείο CSV με στήλες: username, password',
+  selectCsvFile: 'Επιλογή αρχείου CSV',
+  preview: 'Προεπισκόπηση',
+  importTeams: 'Εισαγωγή Ομάδων',
+  importResults: 'Αποτελέσματα',
+  teamsImported: '{count} ομάδ(ες) εισήχθησαν επιτυχώς'
 }

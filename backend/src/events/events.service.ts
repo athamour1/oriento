@@ -123,22 +123,38 @@ export class EventsService {
 
   async getActiveEventForTeam(userId: number) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    let activeEvent: any = null;
+    let event: any = null;
 
     if (user?.eventId) {
-      const event = await this.findOne(user.eventId);
-      if (event?.isActive) activeEvent = event;
+      event = await this.findOne(user.eventId);
     }
-    if (!activeEvent) {
-      activeEvent = await this.findActiveEvent();
+    if (!event) {
+      event = await this.findActiveEvent();
     }
-    if (!activeEvent) return null;
+    if (!event) return null;
+
+    const now = new Date();
+    const ended = event.endTime && now > new Date(event.endTime);
+    const status = ended ? 'ended' : event.isActive ? 'active' : 'pending';
+
+    // Don't leak checkpoint data before the event starts
+    if (status === 'pending') {
+      return {
+        id: event.id,
+        name: event.name,
+        description: event.description,
+        startTime: event.startTime,
+        endTime: event.endTime,
+        language: event.language,
+        status,
+      };
+    }
 
     const scans = await this.prisma.scan.findMany({
-      where: { teamId: userId, checkpoint: { eventId: activeEvent.id } },
+      where: { teamId: userId, checkpoint: { eventId: event.id } },
     });
 
-    return { ...activeEvent, scannedCheckpointIds: scans.map((s: any) => s.checkpointId) };
+    return { ...event, status, scannedCheckpointIds: scans.map((s: any) => s.checkpointId) };
   }
 
   async upsertTeamLocation(userId: number, dto: UpdateLocationDto) {

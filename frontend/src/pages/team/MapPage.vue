@@ -226,9 +226,16 @@ onMounted(async () => {
 
   // Listen for event state changes via WS instead of polling
   if (teamEventStore.eventId) {
-    locationSocket.emit('join', Number(teamEventStore.eventId))
+    const eid = Number(teamEventStore.eventId)
+    locationSocket.emit('join', eid)
     locationSocket.on('event:ended', () => fetchEvent())
     locationSocket.on('event:activated', () => fetchEvent())
+
+    // On reconnect: re-join event room and resync state
+    locationSocket.on('connect', () => {
+      locationSocket.emit('join', eid)
+      fetchEvent()
+    })
   }
 
   // Always track GPS — admin needs location data even when showTeamLocation is off

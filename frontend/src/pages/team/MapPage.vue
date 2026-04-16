@@ -599,4 +599,3 @@ watch(() => teamEventStore.endTime, (val) => {
 .slide-up-enter-from  { transform: translateY(40px); opacity: 0; }
 .slide-up-leave-to    { transform: translateY(40px); opacity: 0; }
 </style>
-

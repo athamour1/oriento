@@ -118,6 +118,8 @@ onMounted(async () => {
     const ws = useEventSocket(teamEventStore.eventId)
     socket = ws.socket
     socket.on('event:activated', goToMap)
+    // On reconnect, resync event state in case we missed an activation
+    socket.on('connect', () => fetchEvent())
   }
 })
 

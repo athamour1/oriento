@@ -86,15 +86,15 @@ fi
 ok "Working tree clean"
 
 info "Building backend..."
-(cd backend && npm run build)
+docker compose exec -T backend npm run build
 ok "Backend builds successfully"
 
 info "Running backend tests..."
-(cd backend && npm test -- --passWithNoTests)
+docker compose exec -T backend npm test -- --passWithNoTests
 ok "Backend tests pass"
 
 info "Running backend lint..."
-(cd backend && npm run lint)
+docker compose exec -T backend npm run lint
 ok "Backend lint passes"
 
 echo ""

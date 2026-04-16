@@ -1,5 +1,6 @@
 import { defineBoot } from '#q-app/wrappers'
 import axios from 'axios'
+import { socket } from './socket'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
@@ -52,6 +53,8 @@ api.interceptors.response.use(
         const newToken = data.access_token
         localStorage.setItem('token', newToken)
         api.defaults.headers.common.Authorization = `Bearer ${newToken}`
+        // Reconnect socket so it picks up the new token
+        if (socket.connected) { socket.disconnect().connect() }
         processQueue(null, newToken)
         original.headers.Authorization = `Bearer ${newToken}`
         return api(original)
@@ -60,6 +63,7 @@ api.interceptors.response.use(
         // Refresh also failed → force re-login
         localStorage.removeItem('token')
         delete api.defaults.headers.common.Authorization
+        socket.disconnect()
         window.location.href = '/'
         return Promise.reject(refreshErr)
       } finally {
@@ -86,6 +90,8 @@ const scheduleProactiveRefresh = () => {
       if (localStorage.getItem('token') === token) {
         localStorage.setItem('token', data.access_token)
         api.defaults.headers.common.Authorization = `Bearer ${data.access_token}`
+        // Reconnect socket so it picks up the new token
+        if (socket.connected) { socket.disconnect().connect() }
       }
     } catch {
       // Will be handled by the response interceptor on next real request

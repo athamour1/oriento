@@ -78,6 +78,7 @@ model Scan {
 
   // Enforces that a team can scan a specific checkpoint only once
   @@unique([teamId, checkpointId])
+  @@index([checkpointId])
 }
 
 model TeamLocation {

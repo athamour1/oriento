@@ -93,10 +93,7 @@ export class EventsService {
   }
 
   async getDashboardStats() {
-    if (
-      this.dashboardCache &&
-      Date.now() < this.dashboardCache.expiresAt
-    ) {
+    if (this.dashboardCache && Date.now() < this.dashboardCache.expiresAt) {
       return this.dashboardCache.data;
     }
 
